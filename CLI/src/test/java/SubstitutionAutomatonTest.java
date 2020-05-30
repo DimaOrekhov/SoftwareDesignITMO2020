@@ -1,15 +1,14 @@
 import org.junit.*;
+import ru.itmo.mit.cli.NamespaceImpl;
+import ru.itmo.mit.cli.domain.Namespace;
 import ru.itmo.mit.cli.parsing.SubstitutionAutomaton;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
 
 public class SubstitutionAutomatonTest {
 
-    private final Map<String, String> namespace = new HashMap<>() {
+    private final Namespace namespace = new NamespaceImpl() {
         {
             put("x", "Hello");
             put("y", "World");

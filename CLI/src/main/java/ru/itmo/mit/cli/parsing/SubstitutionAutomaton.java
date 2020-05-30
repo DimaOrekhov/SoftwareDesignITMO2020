@@ -1,5 +1,6 @@
 package ru.itmo.mit.cli.parsing;
 
+import ru.itmo.mit.cli.domain.Namespace;
 import ru.itmo.mit.cli.parsing.domain.Automaton;
 import ru.itmo.mit.cli.parsing.domain.AutomatonInputStream;
 import ru.itmo.mit.cli.parsing.domain.Substitutor;
@@ -8,10 +9,10 @@ import java.util.Map;
 
 public final class SubstitutionAutomaton extends Automaton<Character, String> implements Substitutor {
 
-    private final Map<String, String> namespace;
+    private final Namespace namespace;
     private final SubAutoStateFactory stateFactory;
 
-    public SubstitutionAutomaton(Map<String, String> namespace) {
+    public SubstitutionAutomaton(Namespace namespace) {
         this.namespace = namespace;
         stateFactory = new SubAutoStateFactory();
     }
