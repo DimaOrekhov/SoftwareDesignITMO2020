@@ -18,7 +18,24 @@ public class PipedCommandsBuilderAsHandler implements AutomatonOutputHandler<Com
 
     @Override
     public void handle(CommandToken stateResult) {
-        switch (stateResult.t)
+        switch (stateResult.getTokenType()) {
+            case PIPE: {
+                commandsBuilder.addCommand(currCommandBuilder.build());
+                currCommandBuilder = new CommandBuilderImpl();
+                break;
+            }
+            case COMMAND: {
+                currCommandBuilder.setCommandName(stateResult.getValue());
+                break;
+            }
+            case ARGUMENT: {
+                currCommandBuilder.addArgument(stateResult.getValue());
+                break;
+            }
+            case EMPTY: {
+                break;
+            }
+        }
     }
 
 }

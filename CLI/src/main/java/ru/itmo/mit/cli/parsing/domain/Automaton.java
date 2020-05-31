@@ -47,4 +47,5 @@ public abstract class Automaton<input, output> {
             return true;
         }
     }
+
 }

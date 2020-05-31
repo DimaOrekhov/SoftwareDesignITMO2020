@@ -18,4 +18,7 @@ public class CommandToken {
         return tokenType;
     }
 
+    public static CommandToken getEmptyToken() {
+        return new CommandToken("", CommandTokenType.EMPTY);
+    }
 }
