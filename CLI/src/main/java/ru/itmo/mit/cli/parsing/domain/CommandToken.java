@@ -9,4 +9,13 @@ public class CommandToken {
         this.value = value;
         this.tokenType = type;
     }
+
+    public String getValue() {
+        return value;
+    }
+
+    public CommandTokenType getTokenType() {
+        return tokenType;
+    }
+
 }

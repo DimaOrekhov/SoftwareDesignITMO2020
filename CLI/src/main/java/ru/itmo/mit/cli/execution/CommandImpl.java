@@ -6,14 +6,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-public class AssignmentCommand extends Command {
+public class CommandImpl extends Command {
 
-    public AssignmentCommand(String commandName, List<String> args) {
-        super(commandName, args);
+    public CommandImpl(String commandName, List<String> arguments) {
+        super(commandName, arguments);
     }
 
     @Override
     public void execute(InputStream inStream, OutputStream outStream) {
-        // Просто опустоши inStream и все
+
     }
 }
