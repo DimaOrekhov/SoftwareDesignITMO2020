@@ -6,15 +6,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-public class ExitCommand extends Command {
+public class WcCommand extends Command {
 
-    public ExitCommand(List<String> commandArgs) {
+    public WcCommand(List<String> commandArgs) {
         super(commandArgs);
     }
 
     @Override
     public void execute(InputStream inStream, OutputStream outStream) {
-        System.exit(0);
-    }
 
+    }
 }

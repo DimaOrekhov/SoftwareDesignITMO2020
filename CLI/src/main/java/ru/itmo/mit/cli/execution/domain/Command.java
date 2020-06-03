@@ -7,11 +7,9 @@ import java.util.List;
 
 public abstract class Command {
 
-    private final String commandName;
     private final List<String> args;
 
-    public Command(String commandName, List<String> args) {
-        this.commandName = commandName;
+    protected Command(List<String> args) {
         this.args = args;
     }
 

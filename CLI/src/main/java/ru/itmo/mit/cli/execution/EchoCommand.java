@@ -6,10 +6,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-public class CommandImpl extends Command {
+public class EchoCommand extends Command {
 
-    public CommandImpl(String commandName, List<String> arguments) {
-        super(commandName, arguments);
+    public EchoCommand(List<String> commandArgs) {
+        super(commandArgs);
     }
 
     @Override

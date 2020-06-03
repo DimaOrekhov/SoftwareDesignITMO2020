@@ -6,7 +6,7 @@ public abstract class PipedCommands {
 
     private final List<Command> commandList;
 
-    public PipedCommands(List<Command> commandList) {
+    protected PipedCommands(List<Command> commandList) {
         this.commandList = commandList;
     }
 

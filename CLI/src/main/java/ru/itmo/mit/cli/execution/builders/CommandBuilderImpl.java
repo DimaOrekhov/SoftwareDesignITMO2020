@@ -1,6 +1,6 @@
 package ru.itmo.mit.cli.execution.builders;
 
-import ru.itmo.mit.cli.execution.CommandImpl;
+import ru.itmo.mit.cli.execution.*;
 import ru.itmo.mit.cli.execution.domain.Command;
 
 import java.util.LinkedList;
@@ -8,17 +8,17 @@ import java.util.List;
 
 public class CommandBuilderImpl implements CommandBuilder {
 
-    private String commandName;
+    private CommandType commandType;
     private final List<String> commandArgs;
 
     public CommandBuilderImpl() {
-        commandName = null;
+        commandType = CommandType.OTHER;
         commandArgs = new LinkedList<>();
     }
 
     @Override
     public CommandBuilder setCommandName(String commandName) {
-        this.commandName = commandName;
+        this.commandType = CommandType.fromString(commandName);
         return this;
     }
 
@@ -30,6 +30,21 @@ public class CommandBuilderImpl implements CommandBuilder {
 
     @Override
     public Command build() {
-        return new CommandImpl(commandName, commandArgs);
+        switch (commandType) {
+            case ASSIGN:
+                return new AssignmentCommand(commandArgs);
+            case CAT:
+                return new CatCommand(commandArgs);
+            case ECHO:
+                return new EchoCommand(commandArgs);
+            case WC:
+                return new WcCommand(commandArgs);
+            case PWD:
+                return new PwdCommand(commandArgs);
+            case EXIT:
+                return new ExitCommand(commandArgs);
+            default:
+                return new OtherCommand(commandArgs);
+        }
     }
 }

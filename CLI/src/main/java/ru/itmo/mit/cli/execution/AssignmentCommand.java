@@ -8,8 +8,8 @@ import java.util.List;
 
 public class AssignmentCommand extends Command {
 
-    public AssignmentCommand(String commandName, List<String> args) {
-        super(commandName, args);
+    public AssignmentCommand(List<String> args) {
+        super(args);
     }
 
     @Override
