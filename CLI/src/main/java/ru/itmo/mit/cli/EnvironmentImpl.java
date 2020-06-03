@@ -13,6 +13,10 @@ public class EnvironmentImpl implements Environment {
     private Namespace namespace;
     private OutputStream finalStream;
 
+    public EnvironmentImpl() {
+
+    }
+
     @Override
     public String getNextLine() {
         return null;

@@ -14,4 +14,8 @@ public class StringBuilderAsHandler implements AutomatonOutputHandler<String> {
     public void handle(String stateResult) {
         builder.append(stateResult);
     }
+
+    @Override
+    public void finalizeHandler() {
+    }
 }

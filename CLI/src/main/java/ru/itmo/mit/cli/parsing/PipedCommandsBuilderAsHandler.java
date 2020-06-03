@@ -38,4 +38,8 @@ public class PipedCommandsBuilderAsHandler implements AutomatonOutputHandler<Com
         }
     }
 
+    @Override
+    public void finalizeHandler() {
+        commandsBuilder.addCommand(currCommandBuilder.build());
+    }
 }

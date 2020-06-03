@@ -8,17 +8,17 @@ import java.util.List;
 
 public class CommandBuilderImpl implements CommandBuilder {
 
-    private CommandType commandType;
+    private String commandName;
     private final List<String> commandArgs;
 
     public CommandBuilderImpl() {
-        commandType = CommandType.OTHER;
+        commandName = "";
         commandArgs = new LinkedList<>();
     }
 
     @Override
     public CommandBuilder setCommandName(String commandName) {
-        this.commandType = CommandType.fromString(commandName);
+        this.commandName = commandName;
         return this;
     }
 
@@ -30,7 +30,7 @@ public class CommandBuilderImpl implements CommandBuilder {
 
     @Override
     public Command build() {
-        switch (commandType) {
+        switch (CommandType.fromString(commandName)) {
             case ASSIGN:
                 return new AssignmentCommand(commandArgs);
             case CAT:
@@ -44,7 +44,7 @@ public class CommandBuilderImpl implements CommandBuilder {
             case EXIT:
                 return new ExitCommand(commandArgs);
             default:
-                return new OtherCommand(commandArgs);
+                return new OtherCommand(commandName, commandArgs);
         }
     }
 }

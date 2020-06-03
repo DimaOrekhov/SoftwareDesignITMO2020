@@ -14,4 +14,12 @@ public abstract class Command {
     }
 
     public abstract void execute(InputStream inStream, OutputStream outStream);
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this.getClass().equals(obj.getClass())) {
+            return this.args.equals(((Command)obj).args);
+        }
+        return false;
+    }
 }

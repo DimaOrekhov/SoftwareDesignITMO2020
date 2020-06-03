@@ -12,4 +12,8 @@ public abstract class PipedCommands {
 
     public abstract void execute();
 
+    @Override
+    public boolean equals(Object obj) {
+        return this.commandList.equals(((PipedCommands)obj).commandList);
+    }
 }

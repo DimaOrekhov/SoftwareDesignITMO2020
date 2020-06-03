@@ -10,6 +10,7 @@ public abstract class Automaton<input, output> {
             outStream.handle(stepResult.result);
             currState = stepResult.nextState;
         }
+        outStream.finalizeHandler();
     }
 
     protected abstract AutomatonState getStartingState();
