@@ -1,11 +1,7 @@
 package ru.itmo.mit.cli.parsing;
 
 import ru.itmo.mit.cli.domain.Namespace;
-import ru.itmo.mit.cli.parsing.domain.Automaton;
-import ru.itmo.mit.cli.parsing.domain.AutomatonInputStream;
-import ru.itmo.mit.cli.parsing.domain.Substitutor;
-
-import java.util.Map;
+import ru.itmo.mit.cli.parsing.domain.*;
 
 public final class SubstitutionAutomaton extends Automaton<Character, String> implements Substitutor {
 
@@ -18,11 +14,11 @@ public final class SubstitutionAutomaton extends Automaton<Character, String> im
     }
 
     @Override
-    public String substitute(String inputString) {
+    public ParsingResult<String> substitute(String inputString) {
         StringBuilder stringBuilder = new StringBuilder();
-        process(new StringPosStream(inputString),
+        TerminalState terminalState = process(new StringPosStream(inputString),
                 new StringBuilderAsHandler(stringBuilder));
-        return stringBuilder.toString();
+        return terminalState.wrapResult(stringBuilder.toString());
     }
 
     @Override
@@ -133,6 +129,11 @@ public final class SubstitutionAutomaton extends Automaton<Character, String> im
         @Override
         protected AutomatonStateStepResult stateStep(AutomatonInputStream<Character> inStream) {
             return null;
+        }
+
+        @Override
+        public <T> ParsingResult<T> wrapResult(T result) {
+            return new SuccessfulParsing<>(result);
         }
     }
 }

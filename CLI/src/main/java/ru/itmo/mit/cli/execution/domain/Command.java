@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class Command {
 
@@ -21,5 +22,10 @@ public abstract class Command {
             return this.args.equals(((Command)obj).args);
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getClass(), this.args);
     }
 }

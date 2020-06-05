@@ -1,6 +1,8 @@
 package ru.itmo.mit.cli.domain;
 
-public interface Environment extends Iterable<String> {
+import ru.itmo.mit.cli.execution.domain.PipedCommands;
+
+public interface Environment {
 
     String getNextLine();
 
@@ -8,4 +10,7 @@ public interface Environment extends Iterable<String> {
 
     void modifyNamespace(String varName, String varValue);
 
+    void executeCommands(PipedCommands commands);
+
+    void println(String text);
 }

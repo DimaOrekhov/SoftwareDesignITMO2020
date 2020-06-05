@@ -14,11 +14,11 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
     }
 
     @Override
-    public PipedCommands parseCommand(String inputString) {
+    public ParsingResult<PipedCommands> parseCommand(String inputString) {
         PipedCommandsBuilder commandBuilder = new PipedCommandsBuilderImpl();
-        process(new StringPosStream(inputString),
+        TerminalState terminalState = process(new StringPosStream(inputString),
                 new PipedCommandsBuilderAsHandler(commandBuilder));
-        return commandBuilder.build();
+        return terminalState.wrapResult(commandBuilder.build());
     }
 
     @Override
@@ -247,6 +247,11 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
         @Override
         protected AutomatonStateStepResult stateStep(AutomatonInputStream<Character> inStream) {
             return null;
+        }
+
+        @Override
+        public <T> ParsingResult<T> wrapResult(T result) {
+            return new SuccessfulParsing<>(result);
         }
     }
 }

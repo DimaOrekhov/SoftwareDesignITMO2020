@@ -2,7 +2,7 @@ package ru.itmo.mit.cli.parsing.domain;
 
 public abstract class Automaton<input, output> {
 
-    public void process(AutomatonInputStream<input> inStream,
+    public TerminalState process(AutomatonInputStream<input> inStream,
                         AutomatonOutputHandler<output> outStream) {
         AutomatonState currState = getStartingState();
         while (!currState.isTerminal()) {
@@ -11,6 +11,7 @@ public abstract class Automaton<input, output> {
             currState = stepResult.nextState;
         }
         outStream.finalizeHandler();
+        return (TerminalState)currState;
     }
 
     protected abstract AutomatonState getStartingState();
@@ -44,6 +45,7 @@ public abstract class Automaton<input, output> {
     }
 
     protected abstract class TerminalState extends AutomatonState {
+        public abstract <T> ParsingResult<T> wrapResult(T result);
         public boolean isTerminal() {
             return true;
         }

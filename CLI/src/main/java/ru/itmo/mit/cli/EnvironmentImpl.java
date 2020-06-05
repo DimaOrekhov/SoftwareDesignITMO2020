@@ -2,6 +2,7 @@ package ru.itmo.mit.cli;
 
 import ru.itmo.mit.cli.domain.Environment;
 import ru.itmo.mit.cli.domain.Namespace;
+import ru.itmo.mit.cli.execution.domain.PipedCommands;
 
 import java.io.OutputStream;
 import java.nio.file.Path;
@@ -33,7 +34,13 @@ public class EnvironmentImpl implements Environment {
     }
 
     @Override
-    public Iterator<String> iterator() {
-        return null;
+    public void executeCommands(PipedCommands commands) {
+
     }
+
+    @Override
+    public void println(String text) {
+
+    }
+
 }

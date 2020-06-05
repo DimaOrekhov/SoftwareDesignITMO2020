@@ -1,9 +1,10 @@
+package ru.itmo.mit.cli;
+
 import org.junit.*;
-import ru.itmo.mit.cli.NamespaceImpl;
 import ru.itmo.mit.cli.domain.Namespace;
 import ru.itmo.mit.cli.parsing.SubstitutionAutomaton;
 
-import static org.junit.Assert.assertEquals;
+import static ru.itmo.mit.cli.TestUtils.assertEqualsParsingResult;
 
 
 public class SubstitutionAutomatonTest {
@@ -16,6 +17,7 @@ public class SubstitutionAutomatonTest {
             put("10", "12");
         }
     };
+
     private final String simpleString1 = "hello x world!!";
     private final String simpleString2 = "12345 10 12";
     private final String stringWithSub1 = "$x world";
@@ -32,24 +34,24 @@ public class SubstitutionAutomatonTest {
 
     @Test
     public void testSimpleStrings() {
-        assertEquals(simpleString1, substitutor.substitute(simpleString1));
-        assertEquals(simpleString2, substitutor.substitute(simpleString2));
+        assertEqualsParsingResult(simpleString1, substitutor.substitute(simpleString1));
+        assertEqualsParsingResult(simpleString2, substitutor.substitute(simpleString2));
     }
 
     @Test
     public void testSimpleSubstitution() {
-        assertEquals(stringWithSubResult1, substitutor.substitute(stringWithSub1));
-        assertEquals(stringWithSubResult2, substitutor.substitute(stringWithSub2));
-        assertEquals(stringWithSubResult3, substitutor.substitute(stringWithSub3));
+        assertEqualsParsingResult(stringWithSubResult1, substitutor.substitute(stringWithSub1));
+        assertEqualsParsingResult(stringWithSubResult2, substitutor.substitute(stringWithSub2));
+        assertEqualsParsingResult(stringWithSubResult3, substitutor.substitute(stringWithSub3));
     }
 
     @Test
     public void testDoubleQuotes() {
-        assertEquals(doubleQuotesAndSubResult, substitutor.substitute(doubleQuotesAndSub));
+        assertEqualsParsingResult(doubleQuotesAndSubResult, substitutor.substitute(doubleQuotesAndSub));
     }
 
     @Test
     public void testSingleQuotes() {
-        assertEquals(singleQuotesAndSubResult, substitutor.substitute(singleQuotesAndSub));
+        assertEqualsParsingResult(singleQuotesAndSubResult, substitutor.substitute(singleQuotesAndSub));
     }
 }

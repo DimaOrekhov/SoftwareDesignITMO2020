@@ -13,16 +13,17 @@ import java.nio.charset.StandardCharsets;
 
 public class EntryPoint {
 
-    public static void main() {
+    public static void main(String[] args) {
         Namespace namespace = new NamespaceImpl();
         Shell shell = new ShellImpl(new SubstitutionAutomaton(namespace),
                 new CommandParserAutomaton(),
-                new CommandExecutorImpl());
+                new EnvironmentImpl());
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in,
                 StandardCharsets.UTF_8));
+        String line;
         try {
-            while (reader.ready()) {
-                shell.interpret(reader.readLine());
+            while ((line = reader.readLine()) != null) {
+                shell.interpret(line);
             }
         }
         catch (IOException e) {

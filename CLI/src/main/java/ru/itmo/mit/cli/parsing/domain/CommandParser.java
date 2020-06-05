@@ -4,5 +4,5 @@ import ru.itmo.mit.cli.execution.domain.PipedCommands;
 
 public interface CommandParser {
 
-    PipedCommands parseCommand(String inputString);
+    ParsingResult<PipedCommands> parseCommand(String inputString);
 }

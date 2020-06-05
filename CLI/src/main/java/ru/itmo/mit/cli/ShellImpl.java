@@ -1,29 +1,45 @@
 package ru.itmo.mit.cli;
 
+import ru.itmo.mit.cli.domain.Environment;
 import ru.itmo.mit.cli.domain.Shell;
 import ru.itmo.mit.cli.execution.domain.CommandExecutor;
 import ru.itmo.mit.cli.execution.domain.PipedCommands;
-import ru.itmo.mit.cli.parsing.domain.CommandParser;
-import ru.itmo.mit.cli.parsing.domain.Substitutor;
+import ru.itmo.mit.cli.parsing.domain.*;
 
 public class ShellImpl implements Shell {
 
     private final Substitutor substitutor;
     private final CommandParser commandParser;
-    private final CommandExecutor commandExecutor;
+    private final Environment environment;
 
     public ShellImpl(Substitutor substitutor,
                      CommandParser commandParser,
-                     CommandExecutor commandExecutor) {
+                     Environment environment) {
         this.substitutor = substitutor;
         this.commandParser = commandParser;
-        this.commandExecutor = commandExecutor;
+        this.environment = environment;
     }
 
     public void interpret(String inputString) {
-        String commandString = substitutor.substitute(inputString);
-        PipedCommands commands = commandParser.parseCommand(commandString);
-        commandExecutor.execute(commands);
+        ParsingResult<String> substitutorResult = substitutor.substitute(inputString);
+        if (!processParsingResult(substitutorResult)) {
+            return;
+        }
+        String commandString = ((SuccessfulParsing<String>) substitutorResult).getResult();
+        ParsingResult<PipedCommands> commandParserResult = commandParser.parseCommand(commandString);
+        if (!processParsingResult(commandParserResult)) {
+            return;
+        }
+        PipedCommands commands = ((SuccessfulParsing<PipedCommands>) commandParserResult).getResult();
+        environment.executeCommands(commands);
     }
 
+    private boolean processParsingResult(ParsingResult result) {
+        if (result instanceof SuccessfulParsing) {
+            return true;
+        }
+        String errorMessage = ((FailedParsing) result).getErrorMessage();
+        environment.println(errorMessage);
+        return false;
+    }
 }

@@ -1,6 +1,7 @@
 package ru.itmo.mit.cli.execution.domain;
 
 import java.util.List;
+import java.util.Objects;
 
 public abstract class PipedCommands {
 
@@ -15,5 +16,10 @@ public abstract class PipedCommands {
     @Override
     public boolean equals(Object obj) {
         return this.commandList.equals(((PipedCommands)obj).commandList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.commandList);
     }
 }
