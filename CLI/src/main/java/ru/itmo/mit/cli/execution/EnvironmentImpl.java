@@ -50,7 +50,7 @@ public class EnvironmentImpl implements Environment {
 
     @Override
     public void executeCommands(PipedCommands commands) {
-        InputStream prevIstream = UtilClasses.getEmptyInputStream();
+        InputStream prevIstream = StreamUtils.getEmptyInputStream();
         for (Command command : commands.getCommandList()) {
             try (PipedOutputStream outStream = new PipedOutputStream();
                  PipedInputStream inputStream = new PipedInputStream(outStream)) {
@@ -60,17 +60,23 @@ public class EnvironmentImpl implements Environment {
                 if (!processExecutionResult(result)) {
                     return;
                 }
-                //outStream.flush();
                 outStream.close();
+                //inputStream.close();
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 inputStream.transferTo(byteArrayOutputStream);
                 prevIstream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+                //prevIstream = inputStream;
             }
             catch (IOException e) {
                 return; // Add exception processing
             }
         }
-        toFinalStream(prevIstream);
+        try {
+            prevIstream.transferTo(finalStream);
+        }
+        catch (IOException e) {
+
+        }
     }
 
     @Override
@@ -78,15 +84,6 @@ public class EnvironmentImpl implements Environment {
         try {
             finalStream.write(text.getBytes(charset));
             finalStream.write("\n".getBytes(charset));
-        }
-        catch (IOException e) {
-            // Do something
-        }
-    }
-
-    private void toFinalStream(InputStream istream) {
-        try {
-            finalStream.write(istream.readAllBytes());
         }
         catch (IOException e) {
             // Do something

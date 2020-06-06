@@ -1,5 +1,10 @@
 package ru.itmo.mit.cli.execution;
 
+import ru.itmo.mit.cli.execution.domain.Command;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public enum CommandType {
     ASSIGN,
     CAT,

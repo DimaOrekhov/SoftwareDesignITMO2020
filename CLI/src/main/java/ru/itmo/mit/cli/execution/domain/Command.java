@@ -1,8 +1,12 @@
 package ru.itmo.mit.cli.execution.domain;
 
+import ru.itmo.mit.cli.execution.*;
+
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public abstract class Command {
@@ -29,4 +33,24 @@ public abstract class Command {
     public int hashCode() {
         return Objects.hash(this.getClass(), this.args);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(classToName.getOrDefault(this.getClass(), ""))
+                .append(" \'")
+                .append(String.join("\' \'", args))
+                .append("\'");
+        return stringBuilder.toString();
+    }
+
+    private final static Map<Class<?>, String> classToName = new HashMap<>() {
+        {
+            put(CatCommand.class, "cat");
+            put(EchoCommand.class, "echo");
+            put(WcCommand.class, "wc");
+            put(ExitCommand.class, "exit");
+            put(PwdCommand.class, "pwd");
+        }
+    };
 }

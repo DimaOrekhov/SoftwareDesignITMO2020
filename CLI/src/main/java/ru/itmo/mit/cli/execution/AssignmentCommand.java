@@ -26,4 +26,19 @@ public class AssignmentCommand extends Command {
             return new FailedToExecute(ASSIGNMENT_LACKS_ARGUMENTS);
         }
     }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(
+                args.get(0) == null ? "" : args.get(0)
+        )
+                .append("=");
+        for (int i = 1; i < args.size(); i++) {
+            stringBuilder.append("\'")
+                    .append(args.get(i))
+                    .append("\' ");
+        }
+        return stringBuilder.toString();
+    }
 }

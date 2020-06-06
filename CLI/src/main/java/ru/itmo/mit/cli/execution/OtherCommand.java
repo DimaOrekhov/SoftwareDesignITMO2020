@@ -23,7 +23,13 @@ public class OtherCommand extends Command {
         return CommandExecuted.getInstance();
     }
 
-    private String commandAsString() {
-        return null;
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(commandName)
+                .append(" \'")
+                .append(String.join("\' \'", args))
+                .append("\'");
+        return stringBuilder.toString();
     }
 }
