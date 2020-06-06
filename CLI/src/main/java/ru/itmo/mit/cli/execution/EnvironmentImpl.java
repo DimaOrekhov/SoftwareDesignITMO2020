@@ -50,7 +50,7 @@ public class EnvironmentImpl implements Environment {
 
     @Override
     public void executeCommands(PipedCommands commands) {
-        InputStream prevIstream = getEmptyInputStream();
+        InputStream prevIstream = UtilClasses.getEmptyInputStream();
         for (Command command : commands.getCommandList()) {
             try (PipedOutputStream outStream = new PipedOutputStream();
                  PipedInputStream inputStream = new PipedInputStream(outStream)) {
@@ -71,15 +71,6 @@ public class EnvironmentImpl implements Environment {
             }
         }
         toFinalStream(prevIstream);
-    }
-
-    private InputStream getEmptyInputStream() {
-        return new InputStream() {
-            @Override
-            public int read() throws IOException {
-                return -1;
-            }
-        };
     }
 
     @Override
