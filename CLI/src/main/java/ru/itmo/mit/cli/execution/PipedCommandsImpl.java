@@ -11,9 +11,4 @@ public class PipedCommandsImpl extends PipedCommands {
         super(commandList);
     }
 
-    @Override
-    public void execute() {
-
-    }
-
 }

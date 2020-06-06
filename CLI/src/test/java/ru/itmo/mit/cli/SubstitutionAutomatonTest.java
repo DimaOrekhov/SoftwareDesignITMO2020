@@ -1,7 +1,8 @@
 package ru.itmo.mit.cli;
 
 import org.junit.*;
-import ru.itmo.mit.cli.domain.Namespace;
+import ru.itmo.mit.cli.execution.NamespaceImpl;
+import ru.itmo.mit.cli.execution.domain.Namespace;
 import ru.itmo.mit.cli.parsing.SubstitutionAutomaton;
 
 import static ru.itmo.mit.cli.TestUtils.assertEqualsParsingResult;

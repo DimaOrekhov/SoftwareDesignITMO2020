@@ -1,8 +1,7 @@
 package ru.itmo.mit.cli;
 
-import ru.itmo.mit.cli.domain.Environment;
+import ru.itmo.mit.cli.execution.domain.Environment;
 import ru.itmo.mit.cli.domain.Shell;
-import ru.itmo.mit.cli.execution.domain.CommandExecutor;
 import ru.itmo.mit.cli.execution.domain.PipedCommands;
 import ru.itmo.mit.cli.parsing.domain.*;
 
@@ -32,6 +31,7 @@ public class ShellImpl implements Shell {
         }
         PipedCommands commands = ((SuccessfulParsing<PipedCommands>) commandParserResult).getResult();
         environment.executeCommands(commands);
+        System.out.println("COMMAND EXECUTED!");
     }
 
     private boolean processParsingResult(ParsingResult result) {

@@ -1,6 +1,6 @@
 package ru.itmo.mit.cli.parsing;
 
-import ru.itmo.mit.cli.domain.Namespace;
+import ru.itmo.mit.cli.execution.domain.Namespace;
 import ru.itmo.mit.cli.parsing.domain.*;
 
 public final class SubstitutionAutomaton extends Automaton<Character, String> implements Substitutor {

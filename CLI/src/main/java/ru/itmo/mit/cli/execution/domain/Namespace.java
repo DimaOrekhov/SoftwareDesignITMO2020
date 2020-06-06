@@ -1,4 +1,4 @@
-package ru.itmo.mit.cli.domain;
+package ru.itmo.mit.cli.execution.domain;
 
 import java.util.Map;
 

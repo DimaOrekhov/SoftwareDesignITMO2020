@@ -1,12 +1,13 @@
-package ru.itmo.mit.cli.domain;
+package ru.itmo.mit.cli.execution.domain;
 
-import ru.itmo.mit.cli.execution.domain.PipedCommands;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
 
 public interface Environment {
 
-    String getNextLine();
+    Path getWorkingDirectory();
 
-    void feedLine(String line);
+    Charset getCharset();
 
     void modifyNamespace(String varName, String varValue);
 

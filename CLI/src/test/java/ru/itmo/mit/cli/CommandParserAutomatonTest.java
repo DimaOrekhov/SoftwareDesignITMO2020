@@ -5,8 +5,6 @@ import ru.itmo.mit.cli.execution.*;
 import ru.itmo.mit.cli.execution.domain.Command;
 import ru.itmo.mit.cli.execution.domain.PipedCommands;
 import ru.itmo.mit.cli.parsing.CommandParserAutomaton;
-import ru.itmo.mit.cli.parsing.domain.ParsingResult;
-import ru.itmo.mit.cli.parsing.domain.SuccessfulParsing;
 
 import java.util.Arrays;
 import java.util.LinkedList;
