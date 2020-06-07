@@ -2,6 +2,7 @@ package ru.itmo.mit.cli;
 
 import org.junit.*;
 import ru.itmo.mit.cli.execution.*;
+import ru.itmo.mit.cli.execution.commands.*;
 import ru.itmo.mit.cli.execution.domain.Command;
 import ru.itmo.mit.cli.execution.domain.PipedCommands;
 import ru.itmo.mit.cli.parsing.CommandParserAutomaton;

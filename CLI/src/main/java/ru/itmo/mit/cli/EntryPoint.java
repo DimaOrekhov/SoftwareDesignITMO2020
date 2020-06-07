@@ -15,6 +15,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * EntryPoint class contains method main.
+ * It initializes instance of Shell and then listens to System.in,
+ * passing read lines to shell.
+ */
 public class EntryPoint {
 
     private static final Charset charset = StandardCharsets.UTF_8;

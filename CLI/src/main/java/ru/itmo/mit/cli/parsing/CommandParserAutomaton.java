@@ -60,6 +60,7 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
         private final BasicArgumentParsingState basicArgumentParsingState;
         private final InsideQuotesState insideQuotesState;
         private final PipeState pipeState;
+        private final UnmatchedQuotesFinalState unmatchedState;
         private final FinalState finalState;
 
         private ComParserAutoStateFactory() {
@@ -70,6 +71,7 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
             basicArgumentParsingState = new BasicArgumentParsingState();
             insideQuotesState = new InsideQuotesState();
             pipeState = new PipeState();
+            unmatchedState = new UnmatchedQuotesFinalState();
             finalState = new FinalState();
         }
 
@@ -101,6 +103,10 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
             return pipeState;
         }
 
+        public UnmatchedQuotesFinalState getUnmatchedState() {
+            return unmatchedState;
+        }
+
         public FinalState getFinalState() {
             return finalState;
         }
@@ -115,9 +121,6 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
                 if (Character.isSpaceChar(symbol)) {
                     continue;
                 }
-/*                if (symbol == '|') {
-                    // bash warns of unexpected symbol
-                }*/
                 inStream.rollBack();
                 return new AutomatonStateStepResult(factory.getBasicCommandParsingState(),
                         CommandToken.getEmptyToken());
@@ -216,8 +219,6 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
     }
 
     private class InsideQuotesState extends NonTerminalState {
-        // Нужно все-таки разделить на два типа кавычек
-        // в одинарных там всегда экранирование
         @Override
         protected AutomatonStateStepResult stateStep(AutomatonInputStream<Character> inStream) {
             StringBuilder argBuilder = new StringBuilder();
@@ -229,7 +230,7 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
                 }
                 argBuilder.append(symbol);
             }
-            return new AutomatonStateStepResult(factory.getFinalState(),
+            return new AutomatonStateStepResult(factory.getUnmatchedState(),
                     finalizeAsArgument(argBuilder));
         }
     }
@@ -252,6 +253,20 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
         @Override
         public <T> ParsingResult<T> wrapResult(T result) {
             return new SuccessfulParsing<>(result);
+        }
+    }
+
+    private class UnmatchedQuotesFinalState extends TerminalState {
+
+        @Override
+        protected AutomatonStateStepResult stateStep(AutomatonInputStream<Character> inStream) {
+            return null;
+        }
+
+        @Override
+        public <T> ParsingResult<T> wrapResult(T result) {
+            return new FailedParsing<>(
+                    "Parsing error: Unmatched quotes present in the input string");
         }
     }
 }

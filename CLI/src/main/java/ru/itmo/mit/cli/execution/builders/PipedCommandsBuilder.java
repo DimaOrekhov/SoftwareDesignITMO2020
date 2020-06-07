@@ -7,14 +7,12 @@ public interface PipedCommandsBuilder {
 
     PipedCommandsBuilder addCommand(Command command);
 
-/*
     default PipedCommandsBuilder addCommands(Command...commands) {
         for (Command command: commands) {
             addCommand(command);
         }
         return this;
     }
-*/
 
     PipedCommands build();
 

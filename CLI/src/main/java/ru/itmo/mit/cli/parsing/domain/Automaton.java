@@ -1,7 +1,16 @@
 package ru.itmo.mit.cli.parsing.domain;
 
+
 public abstract class Automaton<input, output> {
 
+    /**
+     * This method describes basic automaton traversal
+     * Proceed from starting state to the terminal
+     * Performing one step at a time
+     * @param inStream
+     * @param outStream
+     * @return
+     */
     public TerminalState process(AutomatonInputStream<input> inStream,
                         AutomatonOutputHandler<output> outStream) {
         AutomatonState currState = getStartingState();
@@ -17,6 +26,11 @@ public abstract class Automaton<input, output> {
     protected abstract AutomatonState getStartingState();
 
 
+    /**
+     * Inner class representing result of a step
+     * Effectively it is a pair that stores next State
+     * and some result obtained at a current step
+     */
     protected class AutomatonStateStepResult {
 
         private final AutomatonState nextState;
@@ -28,8 +42,8 @@ public abstract class Automaton<input, output> {
         }
     }
 
-    // Выбрал абстрактный класс, а не интерфейс, чтобы можно было
-    // зацепиться за дженерики outer класса.
+    // Choose abstract class over interface so
+    // I could capture same generic instance of the outer class
     protected abstract class AutomatonState {
 
         protected abstract AutomatonStateStepResult stateStep(AutomatonInputStream<input> inStream);

@@ -1,5 +1,10 @@
 package ru.itmo.mit.cli.parsing.domain;
 
+/**
+ * Simple interface representing input stream that
+ * feeds into automaton
+ * @param <T>
+ */
 public interface AutomatonInputStream<T> extends Iterable<T> {
 
     void rollBack();

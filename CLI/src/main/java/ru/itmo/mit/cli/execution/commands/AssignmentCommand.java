@@ -1,4 +1,4 @@
-package ru.itmo.mit.cli.execution;
+package ru.itmo.mit.cli.execution.commands;
 
 import ru.itmo.mit.cli.execution.domain.*;
 

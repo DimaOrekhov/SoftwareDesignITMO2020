@@ -7,7 +7,6 @@ import ru.itmo.mit.cli.execution.domain.*;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.util.Map;
 
 public class EnvironmentImpl implements Environment {
 

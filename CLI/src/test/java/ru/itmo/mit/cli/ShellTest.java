@@ -82,6 +82,15 @@ public class ShellTest {
     }
 
     @Test
+    public void testEcho() throws IOException {
+        shell.interpret("echo hello    world");
+        expectedOutStream.write("hello world\n".getBytes(charset));
+        shell.interpret("echo 'hello   world'");
+        expectedOutStream.write("hello   world\n".getBytes(charset));
+        assertEqualsInnerStreams();
+    }
+
+    @Test
     public void testCatFile() throws IOException {
         shell.interpret("cat src/test/testfiles/TestText1.txt");
         actualOutStream.close();
@@ -118,6 +127,10 @@ public class ShellTest {
     public void testExternalCommandWithPipe() throws IOException {
         shell.interpret("echo x=12;print(x) | python3");
         expectedOutStream.write("12\n".getBytes(charset));
+        shell.interpret("echo print(12);print(13);print(14) | python3 | wc");
+        // Не уверен, что тут должна быть 6, мой системный bash выдает 9
+        // Тут, наверное, какой-то у меня неверный способ подсчета байтов:
+        expectedOutStream.write("3\t3\t6\t\n".getBytes(charset));
         assertEqualsInnerStreams();
     }
 

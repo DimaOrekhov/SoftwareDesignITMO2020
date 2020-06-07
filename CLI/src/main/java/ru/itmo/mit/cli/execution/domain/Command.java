@@ -1,6 +1,6 @@
 package ru.itmo.mit.cli.execution.domain;
 
-import ru.itmo.mit.cli.execution.*;
+import ru.itmo.mit.cli.execution.commands.*;
 
 import java.io.IOException;
 import java.io.InputStream;

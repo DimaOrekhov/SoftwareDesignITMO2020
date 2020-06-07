@@ -8,12 +8,12 @@ public interface CommandBuilder {
 
     CommandBuilder addArgument(String arg);
 
-/*    default CommandBuilder addArguments(String...args) {
+    default CommandBuilder addArguments(String...args) {
         for (String arg: args) {
             addArgument(arg);
         }
         return this;
-    }*/
+    }
 
     Command build();
 }
