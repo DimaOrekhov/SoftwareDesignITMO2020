@@ -19,14 +19,9 @@ public class PwdCommand extends Command {
     @Override
     public CommandExecutionResult execute(Environment environment,
                                           InputStream inStream,
-                                          OutputStream outStream) {
+                                          OutputStream outStream) throws IOException {
         String workingDirectory = environment.getWorkingDirectory().toString() + "\n";
-        try {
-            outStream.write(workingDirectory.getBytes(environment.getCharset()));
-        }
-        catch (IOException e) {
-            //
-        }
+        outStream.write(workingDirectory.getBytes(environment.getCharset()));
         return CommandExecuted.getInstance();
     }
 }

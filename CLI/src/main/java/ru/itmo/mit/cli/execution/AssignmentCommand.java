@@ -2,6 +2,7 @@ package ru.itmo.mit.cli.execution;
 
 import ru.itmo.mit.cli.execution.domain.*;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -17,7 +18,7 @@ public class AssignmentCommand extends Command {
     @Override
     public CommandExecutionResult execute(Environment environment,
                                           InputStream inStream,
-                                          OutputStream outStream) {
+                                          OutputStream outStream) throws IOException {
         if (args.size() >= 2) {
             environment.modifyNamespace(args.get(0), args.get(1));
             return CommandExecuted.getInstance();

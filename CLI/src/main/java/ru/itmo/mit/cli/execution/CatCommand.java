@@ -1,5 +1,6 @@
 package ru.itmo.mit.cli.execution;
 
+import jdk.jshell.execution.Util;
 import ru.itmo.mit.cli.execution.domain.*;
 
 import java.io.*;
@@ -20,10 +21,13 @@ public class CatCommand extends Command {
     @Override
     public CommandExecutionResult execute(Environment environment,
                                           InputStream inStream,
-                                          OutputStream outStream) {
+                                          OutputStream outStream) throws IOException {
+        LinkedList<String> filesNotFound = new LinkedList<>();
+        // If block below chains multiple FileInputStreams into one
+        // InputStream and assigns it to inStream variable
         if (args.size() != 0) {
             // Prioritizing arguments over input just like Bash
-            LinkedList<InputStream> streams =new LinkedList<InputStream>();
+            LinkedList<InputStream> streams = new LinkedList<InputStream>();
             for (String fileName : args) {
                 Path filePath = Paths.get(fileName);
                 String workingDirectory = environment.getWorkingDirectory().toString();
@@ -34,17 +38,27 @@ public class CatCommand extends Command {
                     streams.add(new FileInputStream(file));
                 }
                 catch (FileNotFoundException e) {
-                    return new FailedToExecute(fileNotFound(fileName));
+                    filesNotFound.add(fileNotFound(fileName));
                 }
             }
             inStream = new SequenceInputStream(Collections.enumeration(streams));
         }
-
-        try {
-            inStream.transferTo(outStream);
+        // Check whether inStream is an instance of special
+        // emptyStream
+        if (StreamUtils.isInstanceOfEmptyInputStream(inStream)) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    System.in, environment.getCharset()));
+            String line;
+            while (!(line = reader.readLine()).equals(StreamUtils.END_OF_COMMAND)) {
+                outStream.write(line.getBytes(environment.getCharset()));
+                outStream.write("\n".getBytes(environment.getCharset()));
+            }
         }
-        catch (IOException e) {
+        // Transfer result to outStream
+        inStream.transferTo(outStream);
 
+        if (filesNotFound.size() != 0) {
+            return new FailedToExecute(String.join("\n", filesNotFound));
         }
         return CommandExecuted.getInstance();
     }

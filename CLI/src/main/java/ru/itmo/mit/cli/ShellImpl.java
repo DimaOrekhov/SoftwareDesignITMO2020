@@ -31,9 +31,6 @@ public class ShellImpl implements Shell {
         }
         PipedCommands commands = ((SuccessfulParsing<PipedCommands>) commandParserResult).getResult();
         environment.executeCommands(commands);
-
-        System.out.println(commands.toString());
-        System.out.println("COMMAND EXECUTED!");
     }
 
     private boolean processParsingResult(ParsingResult result) {

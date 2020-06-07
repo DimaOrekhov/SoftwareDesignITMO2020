@@ -7,6 +7,7 @@ import ru.itmo.mit.cli.execution.domain.*;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.Map;
 
 public class EnvironmentImpl implements Environment {
 
@@ -35,6 +36,7 @@ public class EnvironmentImpl implements Environment {
         return charset;
     }
 
+    @Override
     public Namespace getNamespace() {
         return namespace;
     }
@@ -57,25 +59,21 @@ public class EnvironmentImpl implements Environment {
                 CommandExecutionResult result = command.execute(this,
                         prevIstream,
                         outStream);
-                if (!processExecutionResult(result)) {
-                    return;
-                }
+                processExecutionResult(result);
                 outStream.close();
-                //inputStream.close();
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 inputStream.transferTo(byteArrayOutputStream);
                 prevIstream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-                //prevIstream = inputStream;
             }
             catch (IOException e) {
-                return; // Add exception processing
+                throw new RuntimeException("IO fail");
             }
         }
         try {
             prevIstream.transferTo(finalStream);
         }
         catch (IOException e) {
-
+            throw new RuntimeException("IO fail");
         }
     }
 
@@ -90,13 +88,10 @@ public class EnvironmentImpl implements Environment {
         }
     }
 
-    private boolean processExecutionResult(CommandExecutionResult result) {
-        if (result instanceof CommandExecuted) {
-            return true;
-        }
-        else if (result instanceof FailedToExecute) {
+    private void processExecutionResult(CommandExecutionResult result) {
+        // Just prints an error message
+        if (result instanceof FailedToExecute) {
             println(((FailedToExecute) result).getErrorMessage());
         }
-        return false;
     }
 }

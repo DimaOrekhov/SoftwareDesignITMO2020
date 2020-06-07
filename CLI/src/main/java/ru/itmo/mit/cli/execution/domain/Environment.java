@@ -9,9 +9,12 @@ public interface Environment {
 
     Charset getCharset();
 
+    Namespace getNamespace();
+
     void modifyNamespace(String varName, String varValue);
 
     void executeCommands(PipedCommands commands);
 
     void println(String text);
+
 }
