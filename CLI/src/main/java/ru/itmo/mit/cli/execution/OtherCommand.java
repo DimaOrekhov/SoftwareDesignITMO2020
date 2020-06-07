@@ -32,6 +32,7 @@ public class OtherCommand extends Command {
         // Running a process:
         Process process = processBuilder.start();
         inStream.transferTo(process.getOutputStream());
+        process.getOutputStream().close();
         process.getInputStream().transferTo(outStream);
         process.getErrorStream().transferTo(outStream);
         return CommandExecuted.getInstance();

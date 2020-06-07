@@ -26,8 +26,7 @@ public class WcCommand extends Command {
                 try {
                     Path filePath = EnvironmentUtils.getAbsolutePath(Paths.get(arg), environment);
                     String result = getStreamStats(new FileInputStream(new File(filePath.toString())),
-                            environment.getCharset(),
-                            arg);
+                            environment.getCharset(), arg, null);
                     outStream.write(result.getBytes(environment.getCharset()));
                 }
                 catch (IOException e) {
@@ -37,19 +36,27 @@ public class WcCommand extends Command {
             return filesNotFound.size() == 0 ? CommandExecuted.getInstance() :
                     new FailedToExecute(String.join("\n", filesNotFound));
         }
+        String result;
         // Reading from stdin if command is first
         if (StreamUtils.isInstanceOfEmptyInputStream(inStream)) {
-
+            inStream = System.in;
+            result = getStreamStats(inStream,
+                    environment.getCharset(), "", StreamUtils.END_OF_COMMAND);
         }
         // Else, reading from passed inStream
-        String result = getStreamStats(inStream, environment.getCharset(), "");
+        else {
+            result = getStreamStats(inStream,
+                    environment.getCharset(), "", null);
+        }
         outStream.write(result.getBytes(environment.getCharset()));
         return CommandExecuted.getInstance();
     }
 
-    private String getStreamStats(InputStream stream, Charset charset, String streamName) throws IOException {
+    private String getStreamStats(InputStream stream,
+                                  Charset charset,
+                                  String streamName,
+                                  String stopString) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream, charset));
-        String line;
         long lineCount = 0;
         long wordCount = 0;
         long byteCount = 0;
@@ -57,12 +64,15 @@ public class WcCommand extends Command {
         if (isFileStream) {
             byteCount = ((FileInputStream) stream).getChannel().size();
         }
-        while ((line = reader.readLine()) != null) {
+        String line;
+        line = reader.readLine();
+        while (line != null && !line.equals(stopString)) {
             lineCount++;
             wordCount += line.split("\\s").length;
             if (!isFileStream) {
                 byteCount += line.getBytes(charset).length;
             }
+            line = reader.readLine();
         }
         return new StringBuilder()
                 .append(lineCount)

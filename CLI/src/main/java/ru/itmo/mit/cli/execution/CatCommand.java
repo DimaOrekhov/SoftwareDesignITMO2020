@@ -54,9 +54,10 @@ public class CatCommand extends Command {
                 outStream.write("\n".getBytes(environment.getCharset()));
             }
         }
-        // Transfer result to outStream
-        inStream.transferTo(outStream);
-
+        else {
+            // Transfer result to outStream
+            inStream.transferTo(outStream);
+        }
         if (filesNotFound.size() != 0) {
             return new FailedToExecute(String.join("\n", filesNotFound));
         }

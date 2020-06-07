@@ -53,9 +53,21 @@ public class EnvironmentImpl implements Environment {
     @Override
     public void executeCommands(PipedCommands commands) {
         InputStream prevIstream = StreamUtils.getEmptyInputStream();
+        int i = 0;
         for (Command command : commands.getCommandList()) {
+            if (i == commands.getCommandList().size() - 1) {
+                try {
+                    command.execute(this, prevIstream, finalStream);
+                }
+                catch (IOException e) {
+
+                }
+                i++;
+                continue;
+            }
             try (PipedOutputStream outStream = new PipedOutputStream();
                  PipedInputStream inputStream = new PipedInputStream(outStream)) {
+
                 CommandExecutionResult result = command.execute(this,
                         prevIstream,
                         outStream);
@@ -68,13 +80,14 @@ public class EnvironmentImpl implements Environment {
             catch (IOException e) {
                 throw new RuntimeException("IO fail");
             }
+            i++;
         }
-        try {
+/*        try {
             prevIstream.transferTo(finalStream);
         }
         catch (IOException e) {
             throw new RuntimeException("IO fail");
-        }
+        }*/
     }
 
     @Override
