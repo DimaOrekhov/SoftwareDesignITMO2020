@@ -3,6 +3,7 @@ package ru.itmo.mit.cli.parsing;
 import ru.itmo.mit.cli.execution.domain.Namespace;
 import ru.itmo.mit.cli.parsing.domain.*;
 
+
 public final class SubstitutionAutomaton extends Automaton<Character, String> implements Substitutor {
 
     private final Namespace namespace;
@@ -26,17 +27,23 @@ public final class SubstitutionAutomaton extends Automaton<Character, String> im
         return new BasicState();
     }
 
-    // Делаю синглтоны сотояний
+    /**
+     * Factory class, provides states of the automaton, each possible state is a singleton
+     */
     private class SubAutoStateFactory {
         private final BasicState basicState;
-        private final ReadingVariableName readingVariableName;
         private final InsideSingleQuotes insideSingleQuotes;
+        private final InsideDoubleQuotes insideDoubleQuotes;
+        private final ReadingVariableName readingVariableNameFromBasic;
+        private final ReadingVariableName readingVariableNameFromQuotes;
         private final FinalState finalState;
 
         private SubAutoStateFactory() {
             basicState = new BasicState();
-            readingVariableName = new ReadingVariableName();
             insideSingleQuotes = new InsideSingleQuotes();
+            insideDoubleQuotes = new InsideDoubleQuotes();
+            readingVariableNameFromBasic = new ReadingVariableName(basicState);
+            readingVariableNameFromQuotes = new ReadingVariableName(insideDoubleQuotes);
             finalState = new FinalState();
         }
 
@@ -44,8 +51,16 @@ public final class SubstitutionAutomaton extends Automaton<Character, String> im
             return basicState;
         }
 
-        public ReadingVariableName getReadingVariableName() {
-            return readingVariableName;
+        public InsideDoubleQuotes getInsideDoubleQuotes() {
+            return insideDoubleQuotes;
+        }
+
+        public ReadingVariableName getReadingVariableNameFromBasic() {
+            return readingVariableNameFromBasic;
+        }
+
+        public ReadingVariableName getReadingVariableNameFromQuotes() {
+            return readingVariableNameFromQuotes;
         }
 
         public InsideSingleQuotes getInsideSingleQuotes() {
@@ -61,11 +76,22 @@ public final class SubstitutionAutomaton extends Automaton<Character, String> im
 
         @Override
         protected AutomatonStateStepResult stateStep(AutomatonInputStream<Character> inStream) {
+            boolean escaped = false;
             StringBuilder stringBuilder = new StringBuilder();
             for (Character symbol: inStream) {
+                if (escaped) {
+                    stringBuilder.append(symbol);
+                    escaped = false;
+                    continue;
+                }
                 switch (symbol) {
                     case ('$'): {
-                        return new AutomatonStateStepResult(stateFactory.getReadingVariableName(),
+                        return new AutomatonStateStepResult(stateFactory.getReadingVariableNameFromBasic(),
+                                stringBuilder.toString());
+                    }
+                    case ('"'): {
+                        stringBuilder.append(symbol);
+                        return new AutomatonStateStepResult(stateFactory.getInsideDoubleQuotes(),
                                 stringBuilder.toString());
                     }
                     case ('\''): {
@@ -74,6 +100,9 @@ public final class SubstitutionAutomaton extends Automaton<Character, String> im
                                 stringBuilder.toString());
                     }
                     default: {
+                        if (symbol == '\\') {
+                            escaped = true;
+                        }
                         stringBuilder.append(symbol);
                         break;
                     }
@@ -84,7 +113,50 @@ public final class SubstitutionAutomaton extends Automaton<Character, String> im
         }
     }
 
+    private class InsideDoubleQuotes extends NonTerminalState {
+
+        @Override
+        protected AutomatonStateStepResult stateStep(AutomatonInputStream<Character> inStream) {
+            boolean escaped = false;
+            StringBuilder stringBuilder = new StringBuilder();
+            for (Character symbol: inStream) {
+                if (escaped) {
+                    stringBuilder.append(symbol);
+                    escaped = false;
+                    continue;
+                }
+                switch (symbol) {
+                    case ('$'): {
+                        return new AutomatonStateStepResult(stateFactory.getReadingVariableNameFromQuotes(),
+                                stringBuilder.toString());
+                    }
+                    case ('"'): {
+                        stringBuilder.append(symbol);
+                        return new AutomatonStateStepResult(stateFactory.getBasicState(),
+                                stringBuilder.toString());
+                    }
+                    default: {
+                        if (symbol == '\\') {
+                            escaped = true;
+                        }
+                        stringBuilder.append(symbol);
+                        break;
+                    }
+                }
+            }
+            return new AutomatonStateStepResult(stateFactory.getFinalState(),
+                    stringBuilder.toString());
+        }
+
+    }
+
     private class ReadingVariableName extends NonTerminalState {
+
+        private AutomatonState parentState;
+
+        public ReadingVariableName(AutomatonState parentState) {
+            this.parentState = parentState;
+        }
 
         @Override
         public AutomatonStateStepResult stateStep(AutomatonInputStream<Character> inStream) {
@@ -95,7 +167,7 @@ public final class SubstitutionAutomaton extends Automaton<Character, String> im
                     continue;
                 }
                 inStream.rollBack();
-                return new AutomatonStateStepResult(stateFactory.getBasicState(), finalize(stringBuilder));
+                return new AutomatonStateStepResult(parentState, finalize(stringBuilder));
             }
             return new AutomatonStateStepResult(stateFactory.getFinalState(),
                     finalize(stringBuilder));
@@ -107,6 +179,7 @@ public final class SubstitutionAutomaton extends Automaton<Character, String> im
             return variableValue == null ? "" : variableValue;
         }
     }
+
 
     private class InsideSingleQuotes extends NonTerminalState {
 

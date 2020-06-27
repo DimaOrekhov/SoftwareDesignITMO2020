@@ -31,6 +31,16 @@ public class SubstitutionAutomatonTest {
     private final String doubleQuotesAndSubResult = "\"Hello World\"! What a good day, \"World\"!";
     private final String singleQuotesAndSub = "$x '$x world'";
     private final String singleQuotesAndSubResult = "Hello '$x world'";
+    private final String doubleInsideSingleQuotes = "echo 'asdasd \" asd $x asd\" asd'";
+    private final String doubleInsideSingleQuotesResult = "echo 'asdasd \" asd $x asd\" asd'";
+    private final String singleInsideDoubleQuotes = "echo \"asdasd ' asd $x asd' asd\"";
+    private final String singleInsideDoubleQuotesResult = "echo \"asdasd ' asd Hello asd' asd\"";
+    private final String escapeDollar = "\\$x $x";
+    private final String escapeDollarResult = "\\$x Hello";
+    private final String escapeQuotes = "hello \\' $x \\' ' $x '";
+    private final String escapeQuotesResult = "hello \\' Hello \\' ' $x '";
+    private final String escapeInsideDoubleQuotes = "\"\\$x\" \"$y\"";
+    private final String escapeInsideDoubleQuotesResult = "\"\\$x\" \"World\"";
     private SubstitutionAutomaton substitutor = new SubstitutionAutomaton(namespace);
 
     @Test
@@ -54,5 +64,23 @@ public class SubstitutionAutomatonTest {
     @Test
     public void testSingleQuotes() {
         assertEqualsParsingResult(singleQuotesAndSubResult, substitutor.substitute(singleQuotesAndSub));
+    }
+
+    @Test
+    public void testNestedQuotes() {
+        assertEqualsParsingResult(singleInsideDoubleQuotesResult,
+                substitutor.substitute(singleInsideDoubleQuotes));
+        assertEqualsParsingResult(doubleInsideSingleQuotesResult,
+                substitutor.substitute(doubleInsideSingleQuotes));
+    }
+
+    @Test
+    public void escapingTest() {
+        assertEqualsParsingResult(escapeDollarResult,
+                substitutor.substitute(escapeDollar));
+        assertEqualsParsingResult(escapeQuotesResult,
+                substitutor.substitute(escapeQuotes));
+        assertEqualsParsingResult(escapeInsideDoubleQuotesResult,
+                substitutor.substitute(escapeInsideDoubleQuotes));
     }
 }

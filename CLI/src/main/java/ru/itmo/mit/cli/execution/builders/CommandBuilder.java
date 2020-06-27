@@ -1,15 +1,16 @@
 package ru.itmo.mit.cli.execution.builders;
 
 import ru.itmo.mit.cli.execution.domain.Command;
+import ru.itmo.mit.cli.execution.domain.CommandWord;
 
 public interface CommandBuilder {
 
-    CommandBuilder setCommandName(String commandName);
+    CommandBuilder setCommandName(CommandWord commandName);
 
-    CommandBuilder addArgument(String arg);
+    CommandBuilder addArgument(CommandWord arg);
 
-    default CommandBuilder addArguments(String...args) {
-        for (String arg: args) {
+    default CommandBuilder addArguments(CommandWord...args) {
+        for (CommandWord arg: args) {
             addArgument(arg);
         }
         return this;

@@ -26,12 +26,6 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
         return factory.getSpaceConsumingStartingState();
     }
 
-/*    public static boolean characterIsCommandSymbol(Character symbol) {
-        return Character.isDigit(symbol) ||
-                Character.isLetter(symbol) ||
-                symbol == '=';
-    }*/
-
     private CommandToken finalizeAsCommand(StringBuilder stringBuilder) {
         return new CommandToken(stringBuilder.toString(),
                 CommandTokenType.COMMAND);
@@ -42,15 +36,9 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
                 CommandTokenType.ARGUMENT);
     }
 
-    private CommandToken finalizeAsArgumentOrEmpty(StringBuilder stringBuilder) {
-        String result = stringBuilder.toString();
-        if (result == "") {
-            return CommandToken.getEmptyToken();
-        }
-        return new CommandToken(result,
-                CommandTokenType.ARGUMENT);
-    }
-
+    /**
+     * Factory class, provides states of the automaton, each possible state is a singleton
+     */
     private class ComParserAutoStateFactory {
 
         private final SpaceConsumingStartingState spaceConsumingStartingState;
@@ -58,7 +46,8 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
         private final BasicCommandParsingState basicCommandParsingState;
         private final AssignmentCommandState assignmentCommandState;
         private final BasicArgumentParsingState basicArgumentParsingState;
-        private final InsideQuotesState insideQuotesState;
+        private final InsideQuotesState insideSingleQuotesState;
+        private final InsideQuotesState insideDoubleQuotesState;
         private final PipeState pipeState;
         private final UnmatchedQuotesFinalState unmatchedState;
         private final FinalState finalState;
@@ -69,7 +58,8 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
             basicCommandParsingState = new BasicCommandParsingState();
             assignmentCommandState = new AssignmentCommandState();
             basicArgumentParsingState = new BasicArgumentParsingState();
-            insideQuotesState = new InsideQuotesState();
+            insideSingleQuotesState = new InsideQuotesState('\'');
+            insideDoubleQuotesState = new InsideQuotesState('"');
             pipeState = new PipeState();
             unmatchedState = new UnmatchedQuotesFinalState();
             finalState = new FinalState();
@@ -95,8 +85,12 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
             return basicArgumentParsingState;
         }
 
-        public InsideQuotesState getInsideQuotesState() {
-            return insideQuotesState;
+        public InsideQuotesState getInsideSingleQuotesState() {
+            return insideSingleQuotesState;
+        }
+
+        public InsideQuotesState getInsideDoubleQuotesState() {
+            return insideDoubleQuotesState;
         }
 
         public PipeState getPipeState() {
@@ -142,8 +136,12 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
                     return new AutomatonStateStepResult(factory.getPipeState(),
                             CommandToken.getEmptyToken());
                 }
-                if (symbol == '"' | symbol == '\'') {
-                    return new AutomatonStateStepResult(factory.getInsideQuotesState(),
+                if (symbol == '\'') {
+                    return new AutomatonStateStepResult(factory.getInsideSingleQuotesState(),
+                            CommandToken.getEmptyToken());
+                }
+                if (symbol == '"') {
+                    return new AutomatonStateStepResult(factory.getInsideDoubleQuotesState(),
                             CommandToken.getEmptyToken());
                 }
                 inStream.rollBack();
@@ -159,25 +157,42 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
 
         @Override
         protected AutomatonStateStepResult stateStep(AutomatonInputStream<Character> inStream) {
+            boolean escaped = false;
             StringBuilder commandNameBuilder = new StringBuilder();
             for (Character symbol: inStream) {
+                if (escaped) {
+                    commandNameBuilder.append(symbol);
+                    escaped = false;
+                    continue;
+                }
                 if (Character.isSpaceChar(symbol)) {
                     return new AutomatonStateStepResult(factory.getSpaceConsumingState(),
                             finalizeAsCommand(commandNameBuilder));
                 }
-                if (symbol == '\'' || symbol == '"') {
-                    return new AutomatonStateStepResult(factory.getInsideQuotesState(),
-                            finalizeAsCommand(commandNameBuilder));
+                switch (symbol) {
+                    case ('\''): {
+                        return new AutomatonStateStepResult(factory.getInsideSingleQuotesState(),
+                                finalizeAsCommand(commandNameBuilder));
+                    }
+                    case ('"'): {
+                        return new AutomatonStateStepResult(factory.getInsideDoubleQuotesState(),
+                                finalizeAsCommand(commandNameBuilder));
+                    }
+                    case ('|'): {
+                        return new AutomatonStateStepResult(factory.getPipeState(),
+                                finalizeAsCommand(commandNameBuilder));
+                    }
+                    case ('='): {
+                        return new AutomatonStateStepResult(factory.getAssignmentCommandState(),
+                                finalizeAsArgument(commandNameBuilder));
+                    }
+                    default: {
+                        if (symbol == '\\') {
+                            escaped = true;
+                        }
+                        commandNameBuilder.append(symbol);
+                    }
                 }
-                if (symbol == '|') {
-                    return new AutomatonStateStepResult(factory.getPipeState(),
-                            finalizeAsCommand(commandNameBuilder));
-                }
-                if (symbol == '=') {
-                    return new AutomatonStateStepResult(factory.getAssignmentCommandState(),
-                            finalizeAsArgument(commandNameBuilder));
-                }
-                commandNameBuilder.append(symbol);
             }
             return new AutomatonStateStepResult(factory.getFinalState(),
                     finalizeAsCommand(commandNameBuilder));
@@ -197,19 +212,32 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
 
         @Override
         protected AutomatonStateStepResult stateStep(AutomatonInputStream<Character> inStream) {
+            boolean escaped = false;
             StringBuilder argBuilder = new StringBuilder();
             for (Character symbol: inStream) {
+                if (escaped) {
+                    argBuilder.append(symbol);
+                    escaped = false;
+                    continue;
+                }
                 if (Character.isSpaceChar(symbol)) {
                     return new AutomatonStateStepResult(factory.getSpaceConsumingState(),
                             finalizeAsArgument(argBuilder));
                 }
-                if (symbol == '\'' || symbol == '"') {
-                    return new AutomatonStateStepResult(factory.getInsideQuotesState(),
+                if (symbol == '\'') {
+                    return new AutomatonStateStepResult(factory.getInsideSingleQuotesState(),
+                            finalizeAsArgument(argBuilder));
+                }
+                if (symbol == '"') {
+                    return new AutomatonStateStepResult(factory.getInsideDoubleQuotesState(),
                             finalizeAsArgument(argBuilder));
                 }
                 if (symbol == '|') {
                     return new AutomatonStateStepResult(factory.getPipeState(),
                             finalizeAsArgument(argBuilder));
+                }
+                if (symbol == '\\') {
+                    escaped = true;
                 }
                 argBuilder.append(symbol);
             }
@@ -219,17 +247,31 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
     }
 
     private class InsideQuotesState extends NonTerminalState {
+
+        private char quoteSymbol;
+
+        public InsideQuotesState(char quoteSymbol) {
+            this.quoteSymbol = quoteSymbol;
+        }
+
         @Override
         protected AutomatonStateStepResult stateStep(AutomatonInputStream<Character> inStream) {
+            boolean escaped = false;
             StringBuilder argBuilder = new StringBuilder();
+            argBuilder.append(quoteSymbol);
             for (Character symbol: inStream) {
-                // Вроде, обещали, что вложенных кавычек не встречается
-                if (symbol == '"' || symbol == '\'') {
+                if (escaped) {
+                    escaped = false;
+                } else if (symbol == '\\') {
+                    escaped = true;
+                } else if (symbol == quoteSymbol) {
+                    argBuilder.append(quoteSymbol);
                     return new AutomatonStateStepResult(factory.getSpaceConsumingState(),
                             finalizeAsArgument(argBuilder));
                 }
                 argBuilder.append(symbol);
             }
+            argBuilder.append(quoteSymbol);
             return new AutomatonStateStepResult(factory.getUnmatchedState(),
                     finalizeAsArgument(argBuilder));
         }

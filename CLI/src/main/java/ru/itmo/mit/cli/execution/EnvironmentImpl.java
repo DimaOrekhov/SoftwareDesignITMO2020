@@ -1,5 +1,6 @@
 package ru.itmo.mit.cli.execution;
 
+import ru.itmo.mit.cli.exceptions.IOFailException;
 import ru.itmo.mit.cli.execution.domain.Environment;
 import ru.itmo.mit.cli.execution.domain.Namespace;
 import ru.itmo.mit.cli.execution.domain.*;
@@ -49,9 +50,13 @@ public class EnvironmentImpl implements Environment {
         namespace.put(varName, varValue);
     }
 
+    /**
+     * Executes chain of piped commands
+     * @param commands
+     */
     @Override
     public void executeCommands(PipedCommands commands) {
-        InputStream prevIstream = StreamUtils.getEmptyInputStream();
+        InputStream prevIstream = System.in;
         int i = 0;
         for (Command command : commands.getCommandList()) {
             if (i == commands.getCommandList().size() - 1) {
@@ -75,20 +80,17 @@ public class EnvironmentImpl implements Environment {
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 inputStream.transferTo(byteArrayOutputStream);
                 prevIstream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-            }
-            catch (IOException e) {
-                throw new RuntimeException("IO fail");
+            } catch (IOException e) {
+                throw new IOFailException(e);
             }
             i++;
         }
-/*        try {
-            prevIstream.transferTo(finalStream);
-        }
-        catch (IOException e) {
-            throw new RuntimeException("IO fail");
-        }*/
     }
 
+    /**
+     * Prints into environment's final stream adding trailing new line character
+     * @param text
+     */
     @Override
     public void println(String text) {
         try {
@@ -96,12 +98,15 @@ public class EnvironmentImpl implements Environment {
             finalStream.write("\n".getBytes(charset));
         }
         catch (IOException e) {
-            // Do something
+            throw new IOFailException(e);
         }
     }
 
+    /**
+     * If an error has occurred during execution
+     * this method prints the error message
+     */
     private void processExecutionResult(CommandExecutionResult result) {
-        // Just prints an error message
         if (result instanceof FailedToExecute) {
             println(((FailedToExecute) result).getErrorMessage());
         }

@@ -28,9 +28,8 @@ public abstract class PipedCommands {
 
     @Override
     public String toString() {
-        return String.join(" | ",
-                commandList.stream()
+        return commandList.stream()
                         .map(Command::toString)
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.joining(" | "));
     }
 }

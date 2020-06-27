@@ -1,5 +1,6 @@
 package ru.itmo.mit.cli;
 
+import ru.itmo.mit.cli.exceptions.IOFailException;
 import ru.itmo.mit.cli.execution.EnvironmentImpl;
 import ru.itmo.mit.cli.execution.NamespaceImpl;
 import ru.itmo.mit.cli.execution.domain.Namespace;
@@ -37,9 +38,8 @@ public class EntryPoint {
             while ((line = reader.readLine()) != null) {
                 shell.interpret(line);
             }
-        }
-        catch (IOException e) {
-            throw new RuntimeException("IO fail");
+        } catch (IOException e) {
+            throw new IOFailException(e);
         }
     }
 

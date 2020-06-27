@@ -1,18 +1,16 @@
-package ru.itmo.mit.cli.execution;
+package ru.itmo.mit.cli.execution.commands;
 
-import ru.itmo.mit.cli.execution.domain.Environment;
-import ru.itmo.mit.cli.execution.domain.Command;
-import ru.itmo.mit.cli.execution.domain.CommandExecuted;
-import ru.itmo.mit.cli.execution.domain.CommandExecutionResult;
+import ru.itmo.mit.cli.execution.domain.*;
 
 import java.io.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class OtherCommand extends Command {
 
-    private final String commandName;
+    private final CommandWord commandName;
 
-    public OtherCommand(String commandName, List<String> commandArgs) {
+    public OtherCommand(CommandWord commandName, List<CommandWord> commandArgs) {
         super(commandArgs);
         this.commandName = commandName;
     }
@@ -31,7 +29,9 @@ public class OtherCommand extends Command {
         processBuilder.directory(workingDirecoty);
         // Running a process:
         Process process = processBuilder.start();
-        inStream.transferTo(process.getOutputStream());
+        if (!inStream.equals(System.in)) {
+            inStream.transferTo(process.getOutputStream());
+        }
         process.getOutputStream().close();
         process.getInputStream().transferTo(outStream);
         process.getErrorStream().transferTo(outStream);
@@ -40,22 +40,27 @@ public class OtherCommand extends Command {
 
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(commandName)
-                .append(" \'")
-                .append(String.join("\' \'", args))
-                .append("\'");
-        return stringBuilder.toString();
+        return commandName.getRawValue() + " " + args.stream()
+                .map(CommandWord::getRawValue)
+                .collect(Collectors.joining(" "));
     }
 
     private String[] commandAsStringArray() {
         String[] result = new String[args.size() + 1];
-        result[0] = commandName;
+        result[0] = commandName.getRawValue();
         int i = 1;
-        for (String arg: args) {
-            result[i] = arg;
+        for (CommandWord arg: args) {
+            result[i] = arg.getEscapedAndStrippedValue();
             i++;
         }
         return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (super.equals(obj)) {
+            return commandName.equals(((OtherCommand) obj).commandName);
+        }
+        return false;
     }
 }

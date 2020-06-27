@@ -9,12 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public abstract class Command {
 
-    protected final List<String> args;
+    protected final List<CommandWord> args;
 
-    protected Command(List<String> args) {
+    protected Command(List<CommandWord> args) {
         this.args = args;
     }
 
@@ -37,12 +38,10 @@ public abstract class Command {
 
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(classToName.getOrDefault(this.getClass(), ""))
-                .append(" \'")
-                .append(String.join("\' \'", args))
-                .append("\'");
-        return stringBuilder.toString();
+        String commandName = classToName.getOrDefault(this.getClass(), "");
+        return commandName + " " + args.stream()
+                .map(CommandWord::getRawValue)
+                .collect(Collectors.joining(" "));
     }
 
     private final static Map<Class<?>, String> classToName = new HashMap<>() {

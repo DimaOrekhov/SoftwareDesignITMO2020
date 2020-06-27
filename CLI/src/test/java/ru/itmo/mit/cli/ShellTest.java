@@ -99,6 +99,24 @@ public class ShellTest {
     }
 
     @Test
+    public void testCatFiles() throws IOException {
+        shell.interpret("cat src/test/testfiles/TestText1.txt src/test/testfiles/py\\ script.py");
+        try (FileInputStream inputStream1 = new FileInputStream("src/test/testfiles/TestText1.txt");
+             FileInputStream inputStream2 = new FileInputStream("src/test/testfiles/py script.py")) {
+            inputStream1.transferTo(expectedOutStream);
+            inputStream2.transferTo(expectedOutStream);
+            assertEqualsInnerStreams();
+        } catch (IOException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Test
+    public void testWcFile() throws IOException {
+
+    }
+
+    @Test
     public void testAssignment() throws IOException {
         Shell shell = buildDefaultShell(actualOutStream);
         shell.interpret("x=12");
@@ -120,6 +138,11 @@ public class ShellTest {
         expectedOutStream.write(
                 "I am a Python program with a space in its name\n".getBytes(charset)
         );
+        // Escaping space:
+        shell.interpret("python3 src/test/testfiles/py\\ script.py");
+        expectedOutStream.write(
+                "I am a Python program with a space in its name\n".getBytes(charset)
+        );
         assertEqualsInnerStreams();
     }
 
@@ -131,7 +154,8 @@ public class ShellTest {
         // Не уверен, что тут должна быть 6, мой системный bash выдает 9
         // Тут, наверное, какой-то у меня неверный способ подсчета байтов:
         expectedOutStream.write("3\t3\t6\t\n".getBytes(charset));
+        shell.interpret("echo print(12);print(13);print(14) | python3 | wc | cat");
+        expectedOutStream.write("3\t3\t6\t\n".getBytes(charset));
         assertEqualsInnerStreams();
     }
-
 }

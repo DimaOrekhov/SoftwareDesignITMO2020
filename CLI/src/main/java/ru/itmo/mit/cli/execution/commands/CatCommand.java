@@ -1,6 +1,5 @@
 package ru.itmo.mit.cli.execution.commands;
 
-import jdk.jshell.execution.Util;
 import ru.itmo.mit.cli.execution.StreamUtils;
 import ru.itmo.mit.cli.execution.domain.*;
 
@@ -12,10 +11,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static ru.itmo.mit.cli.execution.ExecutionErrorMessages.fileNotFound;
+import static ru.itmo.mit.cli.execution.EnvironmentUtils.getAbsolutePath;
 
+/**
+ * CatCommand - prints contents of file arguments or piped stream to
+ * output stream
+ */
 public class CatCommand extends Command {
 
-    public CatCommand(List<String> commandArgs) {
+    public CatCommand(List<CommandWord> commandArgs) {
         super(commandArgs);
     }
 
@@ -28,36 +32,32 @@ public class CatCommand extends Command {
         // InputStream and assigns it to inStream variable
         if (args.size() != 0) {
             // Prioritizing arguments over input just like Bash
-            LinkedList<InputStream> streams = new LinkedList<InputStream>();
-            for (String fileName : args) {
+            LinkedList<InputStream> streams = new LinkedList<>();
+            for (CommandWord fname : args) {
+                String fileName = fname.getEscapedAndStrippedValue();
                 Path filePath = Paths.get(fileName);
-                String workingDirectory = environment.getWorkingDirectory().toString();
-                File file = filePath.isAbsolute() ?
-                        new File(fileName) :
-                        new File(Paths.get(workingDirectory, fileName).toString());
-                try {
-                    streams.add(new FileInputStream(file));
-                }
-                catch (FileNotFoundException e) {
+                Path absFilePath = getAbsolutePath(filePath, environment);
+                try (FileInputStream fileInputStream = new FileInputStream(absFilePath.toString())) {
+                    fileInputStream.transferTo(outStream);
+                } catch (FileNotFoundException e) {
                     filesNotFound.add(fileNotFound(fileName));
+                } catch (IOException e){
+                    throw new IOException(e);
                 }
             }
-            inStream = new SequenceInputStream(Collections.enumeration(streams));
+            return filesNotFound.size() == 0 ? CommandExecuted.getInstance() :
+                    new FailedToExecute(String.join("\n", filesNotFound));
         }
-        // Check whether inStream is an instance of special
-        // emptyStream
-        if (StreamUtils.isInstanceOfEmptyInputStream(inStream)) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(
-                    System.in, environment.getCharset()));
-            String line;
-            while (!(line = reader.readLine()).equals(StreamUtils.END_OF_COMMAND)) {
-                outStream.write(line.getBytes(environment.getCharset()));
-                outStream.write("\n".getBytes(environment.getCharset()));
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(
+                inStream, environment.getCharset()));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            if (System.in.equals(inStream) && line.equals(StreamUtils.END_OF_COMMAND)) {
+                break;
             }
-        }
-        else {
-            // Transfer result to outStream
-            inStream.transferTo(outStream);
+            outStream.write(line.getBytes(environment.getCharset()));
+            outStream.write("\n".getBytes(environment.getCharset()));
         }
         if (filesNotFound.size() != 0) {
             return new FailedToExecute(String.join("\n", filesNotFound));

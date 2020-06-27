@@ -11,7 +11,7 @@ import static ru.itmo.mit.cli.execution.ExecutionErrorMessages.ASSIGNMENT_LACKS_
 
 public class AssignmentCommand extends Command {
 
-    public AssignmentCommand(List<String> args) {
+    public AssignmentCommand(List<CommandWord> args) {
         super(args);
     }
 
@@ -20,7 +20,8 @@ public class AssignmentCommand extends Command {
                                           InputStream inStream,
                                           OutputStream outStream) throws IOException {
         if (args.size() >= 2) {
-            environment.modifyNamespace(args.get(0), args.get(1));
+            environment.modifyNamespace(args.get(0).getEscapedAndStrippedValue(),
+                    args.get(1).getEscapedAndStrippedValue());
             return CommandExecuted.getInstance();
         }
         else {

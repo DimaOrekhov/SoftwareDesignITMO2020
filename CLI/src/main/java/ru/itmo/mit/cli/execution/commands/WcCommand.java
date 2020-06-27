@@ -12,9 +12,11 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
+import static ru.itmo.mit.cli.execution.EnvironmentUtils.getAbsolutePath;
+
 public class WcCommand extends Command {
 
-    public WcCommand(List<String> commandArgs) {
+    public WcCommand(List<CommandWord> commandArgs) {
         super(commandArgs);
     }
 
@@ -25,32 +27,27 @@ public class WcCommand extends Command {
         // Prioritizing file arguments over inputStream:
         if (args.size() != 0) {
             List<String> filesNotFound = new LinkedList<>();
-            for (String arg: args) {
-                try {
-                    Path filePath = EnvironmentUtils.getAbsolutePath(Paths.get(arg), environment);
-                    String result = getStreamStats(new FileInputStream(new File(filePath.toString())),
-                            environment.getCharset(), arg, null);
+            for (CommandWord arg: args) {
+                String fileName = arg.getEscapedAndStrippedValue();
+                Path filePath = Paths.get(fileName);
+                Path absFilePath = getAbsolutePath(filePath, environment);
+                try (FileInputStream fileInputStream = new FileInputStream(absFilePath.toString())) {
+                    String result = getStreamStats(fileInputStream,
+                            environment.getCharset(), fileName, null);
                     outStream.write(result.getBytes(environment.getCharset()));
-                }
-                catch (IOException e) {
-                    filesNotFound.add(ExecutionErrorMessages.fileNotFound(arg));
+                } catch (IOException e) {
+                    filesNotFound.add(ExecutionErrorMessages.fileNotFound(fileName));
                 }
             }
             return filesNotFound.size() == 0 ? CommandExecuted.getInstance() :
                     new FailedToExecute(String.join("\n", filesNotFound));
         }
+
         String result;
-        // Reading from stdin if command is first
-        if (StreamUtils.isInstanceOfEmptyInputStream(inStream)) {
-            inStream = System.in;
-            result = getStreamStats(inStream,
-                    environment.getCharset(), "", StreamUtils.END_OF_COMMAND);
-        }
-        // Else, reading from passed inStream
-        else {
-            result = getStreamStats(inStream,
-                    environment.getCharset(), "", null);
-        }
+        result = getStreamStats(inStream,
+                environment.getCharset(),
+                "",
+                inStream.equals(System.in) ? StreamUtils.END_OF_COMMAND : null);
         outStream.write(result.getBytes(environment.getCharset()));
         return CommandExecuted.getInstance();
     }

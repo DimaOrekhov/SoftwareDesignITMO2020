@@ -3,6 +3,7 @@ package ru.itmo.mit.cli.parsing;
 import ru.itmo.mit.cli.execution.builders.CommandBuilderImpl;
 import ru.itmo.mit.cli.execution.builders.CommandBuilder;
 import ru.itmo.mit.cli.execution.builders.PipedCommandsBuilder;
+import ru.itmo.mit.cli.execution.domain.CommandWord;
 import ru.itmo.mit.cli.parsing.domain.AutomatonOutputHandler;
 import ru.itmo.mit.cli.parsing.domain.CommandToken;
 
@@ -25,11 +26,11 @@ public class PipedCommandsBuilderAsHandler implements AutomatonOutputHandler<Com
                 break;
             }
             case COMMAND: {
-                currCommandBuilder.setCommandName(stateResult.getValue());
+                currCommandBuilder.setCommandName(new CommandWord(stateResult.getValue()));
                 break;
             }
             case ARGUMENT: {
-                currCommandBuilder.addArgument(stateResult.getValue());
+                currCommandBuilder.addArgument(new CommandWord(stateResult.getValue()));
                 break;
             }
             case EMPTY: {
