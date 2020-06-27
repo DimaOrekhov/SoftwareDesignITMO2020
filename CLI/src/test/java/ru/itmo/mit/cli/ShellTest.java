@@ -112,8 +112,16 @@ public class ShellTest {
     }
 
     @Test
-    public void testWcFile() throws IOException {
-
+    public void testWc() throws IOException {
+        shell.interpret("wc src/test/testfiles/TestText1.txt");
+        expectedOutStream.write("2\t6\t30\tsrc/test/testfiles/TestText1.txt\n".getBytes(charset));
+        shell.interpret("wc src/test/testfiles/py\\ script.py src/test/testfiles/main.py");
+        expectedOutStream.write(
+                ("2\t11\t57\tsrc/test/testfiles/py script.py\n" +
+                        "1\t7\t48\tsrc/test/testfiles/main.py\n" +
+                        "3\t18\t105\ttotal\n").getBytes(charset)
+        );
+        assertEqualsInnerStreams();
     }
 
     @Test

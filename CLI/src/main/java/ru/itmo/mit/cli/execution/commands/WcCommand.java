@@ -29,27 +29,34 @@ public class WcCommand extends Command {
         // Prioritizing file arguments over inputStream:
         if (args.size() != 0) {
             List<String> filesNotFound = new LinkedList<>();
+            List<StreamStats> streamStats = new LinkedList<>();
             for (CommandWord arg: args) {
                 String fileName = arg.getEscapedAndStrippedValue();
                 Path filePath = Paths.get(fileName);
                 Path absFilePath = getAbsolutePath(filePath, environment);
                 try (FileInputStream fileInputStream = new FileInputStream(absFilePath.toString())) {
-                    String result = getStreamStats(fileInputStream,
+                    StreamStats result = getStreamStats(fileInputStream,
                             environment.getCharset(), fileName, null);
-                    outStream.write(result.getBytes(environment.getCharset()));
+                    streamStats.add(result);
+                    outStream.write(result.toString().getBytes(environment.getCharset()));
                 } catch (IOException e) {
                     filesNotFound.add(ExecutionErrorMessages.fileNotFound(fileName));
                 }
+            }
+            if (args.size() > 1) {
+                String totalString = StreamStats.sumUp(streamStats).toString();
+                outStream.write(
+                        totalString.getBytes(environment.getCharset())
+                );
             }
             return filesNotFound.size() == 0 ? CommandExecuted.getInstance() :
                     new FailedToExecute(String.join("\n", filesNotFound));
         }
 
-        String result;
-        result = getStreamStats(inStream,
+        String result = getStreamStats(inStream,
                 environment.getCharset(),
                 "",
-                inStream.equals(System.in) ? StreamUtils.END_OF_COMMAND : null);
+                inStream.equals(System.in) ? StreamUtils.END_OF_COMMAND : null).toString();
         outStream.write(result.getBytes(environment.getCharset()));
         return CommandExecuted.getInstance();
     }
@@ -68,7 +75,7 @@ public class WcCommand extends Command {
      * @return
      * @throws IOException
      */
-    private String getStreamStats(InputStream stream,
+    private StreamStats getStreamStats(InputStream stream,
                                   Charset charset,
                                   String streamName,
                                   String stopString) throws IOException {
@@ -84,21 +91,80 @@ public class WcCommand extends Command {
         line = reader.readLine();
         while (line != null && !line.equals(stopString)) {
             lineCount++;
-            wordCount += line.split("\\s").length;
+            if (!line.equals("")) {
+                wordCount += line.split("\\s").length;
+            }
             if (!isFileStream) {
                 byteCount += line.getBytes(charset).length;
             }
             line = reader.readLine();
         }
-        return new StringBuilder()
-                .append(lineCount)
-                .append('\t')
-                .append(wordCount)
-                .append('\t')
-                .append(byteCount)
-                .append('\t')
-                .append(streamName)
-                .append('\n')
-                .toString();
+        return new StreamStats(lineCount, wordCount, byteCount, streamName);
+    }
+
+    /**
+     * Utility data class, representing statistic of a stream
+     */
+    private static class StreamStats {
+
+        private final long lineCount;
+        private final long wordCount;
+        private final long byteCount;
+        private final String streamName;
+
+        private StreamStats(String streamName) {
+            lineCount = 0;
+            wordCount = 0;
+            byteCount = 0;
+            this.streamName = streamName;
+        }
+
+        public StreamStats(long lineCount, long wordCount, long byteCount, String streamName) {
+            this.lineCount = lineCount;
+            this.wordCount = wordCount;
+            this.byteCount = byteCount;
+            this.streamName = streamName;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder stringBuilder = new StringBuilder();
+            return stringBuilder.append(lineCount)
+                    .append('\t')
+                    .append(wordCount)
+                    .append('\t')
+                    .append(byteCount)
+                    .append('\t')
+                    .append(streamName)
+                    .append('\n')
+                    .toString();
+        }
+
+        /**
+         * Creates new StreamStats object summing up two existing
+         * streamName filled is inherited from an object on which
+         * this method is called
+         *
+         * Used in sumUp method below
+         *
+         * @param other
+         * @return
+         */
+        private StreamStats add(StreamStats other) {
+            return new StreamStats(lineCount + other.lineCount,
+                    wordCount + other.wordCount,
+                    byteCount + other.byteCount,
+                    streamName);
+        }
+
+        /**
+         * Used to get a summary of multiple StreamStats objects
+         * @param streamStats
+         * @return
+         */
+        public static StreamStats sumUp(List<StreamStats> streamStats) {
+            return streamStats.stream().reduce(new StreamStats("total"),
+                    StreamStats::add);
+        }
     }
 }
