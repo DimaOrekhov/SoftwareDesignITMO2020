@@ -3,7 +3,7 @@ package ru.itmo.mit.cli.parsing.domain;
 /**
  * Simple interface representing input stream that
  * feeds into automaton
- * @param <T>
+ * @param <T> type of an input token
  */
 public interface AutomatonInputStream<T> extends Iterable<T> {
 

@@ -14,7 +14,7 @@ import static ru.itmo.mit.cli.execution.ExecutionErrorMessages.fileNotFound;
 import static ru.itmo.mit.cli.execution.EnvironmentUtils.getAbsolutePath;
 
 /**
- * CatCommand - prints contents of file arguments or piped stream to
+ * CatCommand - prints contents of files passed as arguments or piped stream to
  * output stream
  */
 public class CatCommand extends Command {
@@ -27,12 +27,9 @@ public class CatCommand extends Command {
     public CommandExecutionResult execute(Environment environment,
                                           InputStream inStream,
                                           OutputStream outStream) throws IOException {
-        LinkedList<String> filesNotFound = new LinkedList<>();
-        // If block below chains multiple FileInputStreams into one
-        // InputStream and assigns it to inStream variable
+        // Prioritizing arguments over command's stdin just like Bash:
         if (args.size() != 0) {
-            // Prioritizing arguments over input just like Bash
-            LinkedList<InputStream> streams = new LinkedList<>();
+            LinkedList<String> filesNotFound = new LinkedList<>();
             for (CommandWord fname : args) {
                 String fileName = fname.getEscapedAndStrippedValue();
                 Path filePath = Paths.get(fileName);
@@ -49,19 +46,23 @@ public class CatCommand extends Command {
                     new FailedToExecute(String.join("\n", filesNotFound));
         }
 
+        // In case no arguments have been passed processes inputStream
         BufferedReader reader = new BufferedReader(new InputStreamReader(
-                inStream, environment.getCharset()));
+                    inStream, environment.getCharset()));
         String line;
         while ((line = reader.readLine()) != null) {
+            // Work around for System.in processing
             if (System.in.equals(inStream) && line.equals(StreamUtils.END_OF_COMMAND)) {
                 break;
             }
             outStream.write(line.getBytes(environment.getCharset()));
             outStream.write("\n".getBytes(environment.getCharset()));
         }
-        if (filesNotFound.size() != 0) {
-            return new FailedToExecute(String.join("\n", filesNotFound));
-        }
         return CommandExecuted.getInstance();
+    }
+
+    @Override
+    public String getCommandName() {
+        return "cat";
     }
 }

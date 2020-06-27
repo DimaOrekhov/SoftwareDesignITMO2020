@@ -7,9 +7,7 @@ public class ExecutionErrorMessages {
             "Assignment command should have both left hand side and right hand side";
 
     public static String fileNotFound(String fileName) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(fileName)
-                .append(": No such file or directory");
-        return stringBuilder.toString();
+        return fileName + ": No such file or directory";
     }
+
 }

@@ -35,12 +35,12 @@ public class ShellImpl implements Shell {
      */
     public void interpret(String inputString) {
         ParsingResult<String> substitutorResult = substitutor.substitute(inputString);
-        if (!processParsingResult(substitutorResult)) {
+        if (parsingFailed(substitutorResult)) {
             return;
         }
         String commandString = ((SuccessfulParsing<String>) substitutorResult).getResult();
         ParsingResult<PipedCommands> commandParserResult = commandParser.parseCommand(commandString);
-        if (!processParsingResult(commandParserResult)) {
+        if (parsingFailed(commandParserResult)) {
             return;
         }
         PipedCommands commands = ((SuccessfulParsing<PipedCommands>) commandParserResult).getResult();
@@ -52,12 +52,12 @@ public class ShellImpl implements Shell {
      * @param result
      * @return
      */
-    private boolean processParsingResult(ParsingResult result) {
+    private boolean parsingFailed(ParsingResult result) {
         if (result instanceof SuccessfulParsing) {
-            return true;
+            return false;
         }
         String errorMessage = ((FailedParsing) result).getErrorMessage();
         environment.println(errorMessage);
-        return false;
+        return true;
     }
 }

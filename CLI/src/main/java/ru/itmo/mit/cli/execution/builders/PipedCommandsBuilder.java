@@ -3,6 +3,9 @@ package ru.itmo.mit.cli.execution.builders;
 import ru.itmo.mit.cli.execution.domain.Command;
 import ru.itmo.mit.cli.execution.domain.PipedCommands;
 
+/**
+ * PipedCommandsBuilder interface, allows to add commands one by one
+ */
 public interface PipedCommandsBuilder {
 
     PipedCommandsBuilder addCommand(Command command);

@@ -1,5 +1,8 @@
-package ru.itmo.mit.cli.execution;
+package ru.itmo.mit.cli.execution.domain;
 
+/**
+ * Possible command types
+ */
 public enum CommandType {
     ASSIGN,
     CAT,
@@ -9,6 +12,10 @@ public enum CommandType {
     EXIT,
     OTHER;
 
+    /**
+     * @param commandName String representing name of a command
+     * @return corresponding enum instance
+     */
     public static CommandType fromString(String commandName) {
         switch (commandName) {
             case "=":

@@ -9,6 +9,9 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 
+/**
+ * Environment interface implementation
+ */
 public class EnvironmentImpl implements Environment {
 
     private final Path workingDirectory;
@@ -16,6 +19,13 @@ public class EnvironmentImpl implements Environment {
     private final OutputStream finalStream;
     private final Charset charset;
 
+    /**
+     *
+     * @param workingDirectory starting working directory
+     * @param namespace underlying Namespace
+     * @param finalStream stdout of Environment
+     * @param charset encoding of Environment
+     */
     public EnvironmentImpl(Path workingDirectory,
                            Namespace namespace,
                            OutputStream finalStream,
@@ -41,10 +51,6 @@ public class EnvironmentImpl implements Environment {
         return namespace;
     }
 
-    public OutputStream getFinalStream() {
-        return finalStream;
-    }
-
     @Override
     public void modifyNamespace(String varName, String varValue) {
         namespace.put(varName, varValue);
@@ -59,16 +65,19 @@ public class EnvironmentImpl implements Environment {
         InputStream prevIstream = System.in;
         int i = 0;
         for (Command command : commands.getCommandList()) {
+            // In case command is the last in a chain
+            // redirect its stdout right into finalStream
             if (i == commands.getCommandList().size() - 1) {
                 try {
                     command.execute(this, prevIstream, finalStream);
                 }
                 catch (IOException e) {
-
+                    throw new IOFailException(e);
                 }
                 i++;
                 continue;
             }
+            // Otherwise, create two piped streams
             try (PipedOutputStream outStream = new PipedOutputStream();
                  PipedInputStream inputStream = new PipedInputStream(outStream)) {
 
@@ -77,6 +86,8 @@ public class EnvironmentImpl implements Environment {
                         outStream);
                 processExecutionResult(result);
                 outStream.close();
+                // Transfer contents of PipedInputStream to ByteArrayInputStream,
+                // so it could be used by next piped command
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 inputStream.transferTo(byteArrayOutputStream);
                 prevIstream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());

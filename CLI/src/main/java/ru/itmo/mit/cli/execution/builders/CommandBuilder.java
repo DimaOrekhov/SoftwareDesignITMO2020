@@ -3,6 +3,9 @@ package ru.itmo.mit.cli.execution.builders;
 import ru.itmo.mit.cli.execution.domain.Command;
 import ru.itmo.mit.cli.execution.domain.CommandWord;
 
+/**
+ * CommandBuilder interface, allows to add command arguments one by one
+ */
 public interface CommandBuilder {
 
     CommandBuilder setCommandName(CommandWord commandName);

@@ -7,6 +7,10 @@ import ru.itmo.mit.cli.execution.domain.CommandWord;
 import ru.itmo.mit.cli.parsing.domain.AutomatonOutputHandler;
 import ru.itmo.mit.cli.parsing.domain.CommandToken;
 
+/**
+ * AutomatonOutputHandler with underlying PipedCommandsBuilder
+ * Builds PipedCommands through series of handle calls with CommandToken as argument
+ */
 public class PipedCommandsBuilderAsHandler implements AutomatonOutputHandler<CommandToken> {
 
     private final PipedCommandsBuilder commandsBuilder;
@@ -17,6 +21,14 @@ public class PipedCommandsBuilderAsHandler implements AutomatonOutputHandler<Com
         currCommandBuilder = new CommandBuilderImpl();
     }
 
+    /**
+     * Processes CommandToken
+     * Given PIPE token, build current command and adds it to chain of piped commands
+     * Given COMMAND token, sets command name of a current command
+     * Given ARGUMENT token, adds argument to a current command
+     * Ignores EMPTY token
+     * @param stateResult CommandToken to be processed
+     */
     @Override
     public void handle(CommandToken stateResult) {
         switch (stateResult.getTokenType()) {

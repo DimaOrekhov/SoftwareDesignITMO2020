@@ -1,6 +1,5 @@
 package ru.itmo.mit.cli.execution.commands;
 
-import ru.itmo.mit.cli.execution.EnvironmentUtils;
 import ru.itmo.mit.cli.execution.ExecutionErrorMessages;
 import ru.itmo.mit.cli.execution.StreamUtils;
 import ru.itmo.mit.cli.execution.domain.*;
@@ -14,6 +13,9 @@ import java.util.List;
 
 import static ru.itmo.mit.cli.execution.EnvironmentUtils.getAbsolutePath;
 
+/**
+ * Counts lines, words and bytes of file arguments or piped input stream
+ */
 public class WcCommand extends Command {
 
     public WcCommand(List<CommandWord> commandArgs) {
@@ -52,6 +54,20 @@ public class WcCommand extends Command {
         return CommandExecuted.getInstance();
     }
 
+    @Override
+    public String getCommandName() {
+        return "wc";
+    }
+
+    /**
+     * Computes required statistics for a given stream
+     * @param stream
+     * @param charset character encoding to be used
+     * @param streamName name of a stream
+     * @param stopString string indicating end of stream
+     * @return
+     * @throws IOException
+     */
     private String getStreamStats(InputStream stream,
                                   Charset charset,
                                   String streamName,

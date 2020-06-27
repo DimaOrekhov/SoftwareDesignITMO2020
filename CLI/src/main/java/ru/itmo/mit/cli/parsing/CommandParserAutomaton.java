@@ -5,6 +5,9 @@ import ru.itmo.mit.cli.execution.domain.PipedCommands;
 import ru.itmo.mit.cli.execution.builders.PipedCommandsBuilder;
 import ru.itmo.mit.cli.parsing.domain.*;
 
+/**
+ * Implementation of CommandParser based on Automaton abstract class
+ */
 public final class CommandParserAutomaton extends Automaton<Character, CommandToken> implements CommandParser {
 
     private final ComParserAutoStateFactory factory;
@@ -13,6 +16,12 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
         factory = new ComParserAutoStateFactory();
     }
 
+    /**
+     * Processes input with underlying automaton
+     * Wraps result with reached terminal state
+     * @param inputString String representation of a command
+     * @return
+     */
     @Override
     public ParsingResult<PipedCommands> parseCommand(String inputString) {
         PipedCommandsBuilder commandBuilder = new PipedCommandsBuilderImpl();
@@ -26,11 +35,19 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
         return factory.getSpaceConsumingStartingState();
     }
 
+    /**
+     * @param stringBuilder contains command name
+     * @return CommandToken of type COMMAND with name from stringBuilder
+     */
     private CommandToken finalizeAsCommand(StringBuilder stringBuilder) {
         return new CommandToken(stringBuilder.toString(),
                 CommandTokenType.COMMAND);
     }
 
+    /**
+     * @param stringBuilder contains argument name
+     * @return CommandToken of type Argument with name from stringBuilder
+     */
     private CommandToken finalizeAsArgument(StringBuilder stringBuilder) {
         return new CommandToken(stringBuilder.toString(),
                 CommandTokenType.ARGUMENT);
@@ -107,6 +124,11 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
 
     }
 
+    /**
+     * Starting state of CommandParsingAutomaton
+     * Skips through any space characters until non-space character is met.
+     * Then transition to BasicCommandParsingState occurs
+     */
     private class SpaceConsumingStartingState extends NonTerminalState {
 
         @Override
@@ -124,6 +146,9 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
         }
     }
 
+    /**
+     * Consumes space characters between arguments
+     */
     private class SpaceConsumingState extends NonTerminalState {
 
         @Override
@@ -153,6 +178,10 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
         }
     }
 
+    /**
+     * Parses command name until space character, quotation mark or pipe.
+     * In case of assignment command parses variable name until '=' character.
+     */
     private class BasicCommandParsingState extends NonTerminalState {
 
         @Override
@@ -199,6 +228,9 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
         }
     }
 
+    /**
+     * Parses single '=' character
+     */
     private class AssignmentCommandState extends NonTerminalState {
 
         @Override
@@ -208,6 +240,10 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
         }
     }
 
+    /**
+     * Basic argument parsing.
+     * Parses argument until it meets either space character, quotation mark or pipe
+     */
     private class BasicArgumentParsingState extends NonTerminalState {
 
         @Override
@@ -246,6 +282,10 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
         }
     }
 
+    /**
+     * State representing parsing inside quotes, parametrized by quotation mark character.
+     * Parses argument until next matching quotation mark character.
+     */
     private class InsideQuotesState extends NonTerminalState {
 
         private char quoteSymbol;
@@ -277,6 +317,10 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
         }
     }
 
+    /**
+     * Pipe state, doesn't read any characters from input, just indicates pipe
+     * and passes to the SpaceConsumingStartingState
+     */
     private class PipeState extends NonTerminalState {
 
         @Override
@@ -286,18 +330,30 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
         }
     }
 
+    /**
+     * FinalState of a successful parsing
+     */
     private class FinalState extends TerminalState {
         @Override
         protected AutomatonStateStepResult stateStep(AutomatonInputStream<Character> inStream) {
             return null;
         }
 
+        /**
+         * Wraps result of a parsing with SuccessfulParsing class
+         * @param result
+         * @param <T>
+         * @return
+         */
         @Override
         public <T> ParsingResult<T> wrapResult(T result) {
             return new SuccessfulParsing<>(result);
         }
     }
 
+    /**
+     * FinalState for unsuccessful parsing, when unmatched quotes are present
+     */
     private class UnmatchedQuotesFinalState extends TerminalState {
 
         @Override
@@ -305,10 +361,15 @@ public final class CommandParserAutomaton extends Automaton<Character, CommandTo
             return null;
         }
 
+        /**
+         * Discards result, but wraps error message into FailedParsing class
+         * @param result
+         * @param <T>
+         * @return
+         */
         @Override
         public <T> ParsingResult<T> wrapResult(T result) {
-            return new FailedParsing<>(
-                    "Parsing error: Unmatched quotes present in the input string");
+            return new FailedParsing<>(CommandParsingErrorMessages.UNMATCHED_QUOTES);
         }
     }
 }

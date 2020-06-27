@@ -23,6 +23,12 @@ public class CommandWord {
         escapedAndStrippedValue = escapeAndStrip(rawValue);
     }
 
+    /**
+     * Strips a pair of quotation mark at the ends of a rawValue String, if present
+     * Deletes backslash characters representing character escaping
+     * @param rawValue
+     * @return
+     */
     private static String escapeAndStrip(String rawValue) {
         if (rawValue.equals("")) {
             return rawValue;
@@ -68,6 +74,11 @@ public class CommandWord {
         return escapedAndStrippedValue;
     }
 
+    /**
+     * Equals compares escaped and stripped value for the sake of testing
+     * @param obj
+     * @return
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof CommandWord) {
@@ -76,6 +87,10 @@ public class CommandWord {
         return false;
     }
 
+    /**
+     * appropriate hash code method
+     * @return
+     */
     @Override
     public int hashCode() {
         return Objects.hashCode(escapedAndStrippedValue);

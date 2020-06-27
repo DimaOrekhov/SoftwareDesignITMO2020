@@ -1,13 +1,16 @@
 package ru.itmo.mit.cli.execution.builders;
 
-import ru.itmo.mit.cli.execution.*;
 import ru.itmo.mit.cli.execution.commands.*;
 import ru.itmo.mit.cli.execution.domain.Command;
+import ru.itmo.mit.cli.execution.domain.CommandType;
 import ru.itmo.mit.cli.execution.domain.CommandWord;
 
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Implementation of CommandBuilder class
+ */
 public class CommandBuilderImpl implements CommandBuilder {
 
     private CommandWord commandName;
@@ -24,12 +27,20 @@ public class CommandBuilderImpl implements CommandBuilder {
         return this;
     }
 
+    /**
+     * @param arg argument to be added to list of arguments
+     * @return
+     */
     @Override
     public CommandBuilder addArgument(CommandWord arg) {
         commandArgs.add(arg);
         return this;
     }
 
+    /**
+     * Chooses appropriate constructor based on a CommandName
+     * @return
+     */
     @Override
     public Command build() {
         switch (CommandType.fromString(commandName.getEscapedAndStrippedValue())) {

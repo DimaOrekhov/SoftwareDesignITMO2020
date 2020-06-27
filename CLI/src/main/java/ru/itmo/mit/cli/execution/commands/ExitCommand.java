@@ -7,6 +7,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+/**
+ * Exits application
+ */
 public class ExitCommand extends Command {
 
     public ExitCommand(List<CommandWord> commandArgs) {
@@ -19,6 +22,11 @@ public class ExitCommand extends Command {
                                           OutputStream outStream) throws IOException {
         System.exit(0);
         return CommandExecuted.getInstance();
+    }
+
+    @Override
+    public String getCommandName() {
+        return "exit";
     }
 
 }

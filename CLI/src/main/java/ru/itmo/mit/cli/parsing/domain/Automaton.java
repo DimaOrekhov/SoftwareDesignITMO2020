@@ -23,6 +23,9 @@ public abstract class Automaton<input, output> {
         return (TerminalState)currState;
     }
 
+    /**
+     * @return Starting stating of a given automaton
+     */
     protected abstract AutomatonState getStartingState();
 
 
@@ -42,22 +45,38 @@ public abstract class Automaton<input, output> {
         }
     }
 
-    // Choose abstract class over interface so
-    // I could capture same generic instance of the outer class
+    /**
+     * Automaton state abstract class
+     */
     protected abstract class AutomatonState {
 
+        /**
+         * Method representing processing done in a given state
+         * @param inStream iterable stream of input tokens, they controll
+         *                 the processing
+         * @return a pair of some processing result and a next state
+         */
         protected abstract AutomatonStateStepResult stateStep(AutomatonInputStream<input> inStream);
 
+        /**
+         * @return boolean indicating whether a given object represents terminal state
+         */
         public abstract boolean isTerminal();
 
     }
 
+    /**
+     * Abstract class for implementing non terminal automaton states
+     */
     protected abstract class NonTerminalState extends AutomatonState {
         public boolean isTerminal() {
             return false;
         }
     }
 
+    /**
+     * Abstract class for implementing terminal automaton states
+     */
     protected abstract class TerminalState extends AutomatonState {
         public abstract <T> ParsingResult<T> wrapResult(T result);
         public boolean isTerminal() {

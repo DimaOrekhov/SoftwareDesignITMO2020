@@ -4,6 +4,9 @@ import ru.itmo.mit.cli.execution.domain.Namespace;
 import ru.itmo.mit.cli.parsing.domain.*;
 
 
+/**
+ * Substitutor implementation based on Automaton abstract class
+ */
 public final class SubstitutionAutomaton extends Automaton<Character, String> implements Substitutor {
 
     private final Namespace namespace;
@@ -14,6 +17,11 @@ public final class SubstitutionAutomaton extends Automaton<Character, String> im
         stateFactory = new SubAutoStateFactory();
     }
 
+    /**
+     * @param inputString String which possibly contains variables
+     * @return ParsingResult, which, in case no error has occurred, contains
+     * String with values substituted for variable names
+     */
     @Override
     public ParsingResult<String> substitute(String inputString) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -72,6 +80,12 @@ public final class SubstitutionAutomaton extends Automaton<Character, String> im
         }
     }
 
+    /**
+     * Basic automaton state
+     * Reads Character and appends it to a resulting sequence
+     * In case '$' appears passes to ReadingVariableName state
+     * In case quotation mark character appears passes to corresponding InsideQuotesState
+     */
     private class BasicState extends NonTerminalState {
 
         @Override
@@ -113,6 +127,10 @@ public final class SubstitutionAutomaton extends Automaton<Character, String> im
         }
     }
 
+    /**
+     * Just like BasicState, but treats single quotation marks simply as a character
+     * Returns to BasicState when '"' occurs
+     */
     private class InsideDoubleQuotes extends NonTerminalState {
 
         @Override
@@ -150,6 +168,12 @@ public final class SubstitutionAutomaton extends Automaton<Character, String> im
 
     }
 
+    /**
+     * Reads variable name until meets neither letter nor digit
+     * Then passes control to parentState (BasicState or InsideDoubleQuotes state)
+     * and substitutes read variable name with its associated value.
+     * In case no value is associated with a given name, empty string is substituted for.
+     */
     private class ReadingVariableName extends NonTerminalState {
 
         private AutomatonState parentState;
@@ -181,6 +205,10 @@ public final class SubstitutionAutomaton extends Automaton<Character, String> im
     }
 
 
+    /**
+     * Just appends every character from the stream to resulting string
+     * until single quotation mark is met
+     */
     private class InsideSingleQuotes extends NonTerminalState {
 
         @Override
@@ -198,6 +226,9 @@ public final class SubstitutionAutomaton extends Automaton<Character, String> im
         }
     }
 
+    /**
+     * FinalState of successful parsing
+     */
     private class FinalState extends TerminalState {
         @Override
         protected AutomatonStateStepResult stateStep(AutomatonInputStream<Character> inStream) {
