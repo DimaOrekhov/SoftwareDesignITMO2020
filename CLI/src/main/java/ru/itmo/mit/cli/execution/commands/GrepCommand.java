@@ -19,6 +19,12 @@ import java.util.regex.Pattern;
 
 import static ru.itmo.mit.cli.execution.EnvironmentUtils.getAbsolutePath;
 
+/**
+ * Simple version of grep with three possible keys:
+ * -i case insensitivity
+ * -w whole word matching
+ * -A n printing n lines after a match
+ */
 public class GrepCommand extends Command {
 
     private boolean caseInsensitive;
@@ -33,6 +39,7 @@ public class GrepCommand extends Command {
     private static final Options options;
     private static final CommandLineParser commandLineParser;
 
+    // Static initialization of Options and CommandLineParser classes
     static {
         options = new Options();
         // Insensitive key:
@@ -51,6 +58,10 @@ public class GrepCommand extends Command {
 
     /**
      * Argument parsing is done inside the constructor
+     *
+     * When some error occurs, message is saved into parsingFailedError
+     * Non-null value of this variable prevents command from being executed
+     *
      * @param arguments
      */
     public GrepCommand(List<CommandWord> arguments) {
@@ -77,6 +88,7 @@ public class GrepCommand extends Command {
         }
         argList = commandLine.getArgList();
         if (argList.size() == 0) {
+            // RegEx wasn't provided:
             parsingFailedMessage = ExecutionErrorMessages.GREP_USAGE;
         } else {
             regEx = caseInsensitive ? Pattern.compile(argList.get(0), Pattern.CASE_INSENSITIVE) :
@@ -92,6 +104,7 @@ public class GrepCommand extends Command {
         }
 
         if (argList.size() != 0) {
+            // Grep over files:
             LinkedList<String> filesNotFound = new LinkedList<>();
             for (String fileName: argList) {
                 Path absFilePath = getAbsolutePath(fileName, environment);
@@ -107,7 +120,7 @@ public class GrepCommand extends Command {
                     new FailedToExecute(String.join("\n", filesNotFound));
         }
 
-        // Process inStream instead of arguments:
+        // Process inStream, when file arguments are missing:
         processStream(inStream,
                 outStream,
                 environment.getCharset(),
@@ -115,6 +128,15 @@ public class GrepCommand extends Command {
         return CommandExecuted.getInstance();
     }
 
+    /**
+     * Main processing function
+     *
+     * @param inputStream
+     * @param outputStream
+     * @param charset
+     * @param stopString
+     * @throws IOException
+     */
     private void processStream(InputStream inputStream,
                                OutputStream outputStream,
                                Charset charset,
@@ -152,7 +174,8 @@ public class GrepCommand extends Command {
             String result = colorMatch ? stringBuilder.toString() : line;
             if (lineMatched) {
                 if (nLinesAfterMatch!= 0 && lineIdx != 0 && lastPrint != lineIdx - 1) {
-                    // Separating groups of matches
+                    // Separating groups of matches, if last match was earlier that previous line
+                    // Only happens when -A n option was specified with n > 0
                     outputStream.write("--\n".getBytes(charset));
                 }
                 outputStream.write(result.getBytes(charset));
@@ -168,16 +191,34 @@ public class GrepCommand extends Command {
         }
     }
 
+    /**
+     * Checks whether substring is a word, i.e. symbols to its left and right
+     * are non-word character (neither letter, digit nor underscore)
+     * @param text
+     * @param start
+     * @param end
+     * @return
+     */
     private static boolean isWord(String text, int start, int end) {
         boolean leftBorder = start == 0 || nonWordChar(text.charAt(start - 1));
         boolean rightBorder = end == text.length() || nonWordChar(text.charAt(end));
         return leftBorder && rightBorder;
     }
 
+    /**
+     * Checks whether character is a non-word character
+     * @param character
+     * @return
+     */
     private static boolean nonWordChar(char character) {
         return !(Character.isLetter(character) || Character.isDigit(character) || character == '_');
     }
 
+    /**
+     * Make String red when printed out to System.out
+     * @param string
+     * @return
+     */
     public static String colorStringRed(String string) {
         return ANSI_RED + string + ANSI_RESET;
     }
