@@ -25,7 +25,9 @@ public class CommandWord {
 
     /**
      * Strips a pair of quotation mark at the ends of a rawValue String, if present
+     *
      * Deletes backslash characters representing character escaping
+     *
      * @param rawValue
      * @return
      */
@@ -33,12 +35,17 @@ public class CommandWord {
         if (rawValue.equals("")) {
             return rawValue;
         }
-        int loopStart = 0;
-        int loopEnd = rawValue.length();
         // Stripping from quotation marks:
         int lastCharIdx = rawValue.length() - 1;
-        if ((rawValue.charAt(0) == '\'' && rawValue.charAt(lastCharIdx) == '\'') ||
-                (rawValue.charAt(0) == '"' && rawValue.charAt(lastCharIdx) == '"')) {
+        boolean singleQuoted = (rawValue.charAt(0) == '\'' && rawValue.charAt(lastCharIdx) == '\'');
+        boolean doubleQuoted = (rawValue.charAt(0) == '"' && rawValue.charAt(lastCharIdx) == '"');
+        if (singleQuoted) {
+            return rawValue.substring(1, rawValue.length() - 1);
+        }
+
+        int loopStart = 0;
+        int loopEnd = rawValue.length();
+        if (doubleQuoted) {
             loopStart++;
             loopEnd--;
         }
@@ -53,7 +60,18 @@ public class CommandWord {
             }
 
             if (currChar == '\\') {
-                escaped = true;
+                // In double quotes only double quote symbol
+                // can be escaped. In all the other cases
+                // backslash should be treated as a simple character
+                if (doubleQuoted) {
+                    if (i != loopEnd - 1 && rawValue.charAt(i + 1) == '"') {
+                        escaped = true;
+                    } else {
+                        stringBuilder.append(currChar);
+                    }
+                } else {
+                    escaped = true;
+                }
             } else {
                 stringBuilder.append(currChar);
             }

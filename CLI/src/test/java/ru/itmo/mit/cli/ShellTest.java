@@ -3,6 +3,7 @@ package ru.itmo.mit.cli;
 import org.junit.*;
 import ru.itmo.mit.cli.domain.Shell;
 import ru.itmo.mit.cli.execution.EnvironmentImpl;
+import ru.itmo.mit.cli.execution.ExecutionErrorMessages;
 import ru.itmo.mit.cli.execution.NamespaceImpl;
 import ru.itmo.mit.cli.execution.domain.Environment;
 import ru.itmo.mit.cli.execution.domain.Namespace;
@@ -83,8 +84,8 @@ public class ShellTest {
 
     @Test
     public void testEcho() throws IOException {
-        shell.interpret("echo hello    world");
-        expectedOutStream.write("hello world\n".getBytes(charset));
+        //shell.interpret("echo hello    world");
+        //expectedOutStream.write("hello world\n".getBytes(charset));
         shell.interpret("echo 'hello   world'");
         expectedOutStream.write("hello   world\n".getBytes(charset));
         assertEqualsInnerStreams();
@@ -164,6 +165,76 @@ public class ShellTest {
         expectedOutStream.write("3\t3\t6\t\n".getBytes(charset));
         shell.interpret("echo print(12);print(13);print(14) | python3 | wc | cat");
         expectedOutStream.write("3\t3\t6\t\n".getBytes(charset));
+        assertEqualsInnerStreams();
+    }
+
+    @Test
+    public void testGrepSimple() throws IOException {
+        shell.interpret("grep world src/test/testfiles/grep_test_1.txt");
+        expectedOutStream.write("world\nhello hello world\nworld\n".getBytes(charset));
+        shell.interpret("grep match src/test/testfiles/grep_test_2.txt");
+        expectedOutStream.write("match\nmatch\nmatcht\n".getBytes(charset));
+        shell.interpret("echo hello | grep h");
+        expectedOutStream.write("hello\n".getBytes(charset));
+        // Expected to do nothing:
+        shell.interpret("echo hello | grep a");
+        assertEqualsInnerStreams();
+    }
+
+    @Test
+    public void testGrepSingleKey() throws IOException {
+        // Key insensitive:
+        shell.interpret("echo hello | grep HELLO");
+        shell.interpret("echo hello | grep -i HELLO");
+        expectedOutStream.write("hello\n".getBytes(charset));
+        // Whole word match:
+        shell.interpret("echo hello | grep -w h");
+        shell.interpret("echo h ello | grep -w h");
+        expectedOutStream.write("h ello\n".getBytes(charset));
+        // Group matches:
+        shell.interpret("grep -A 1 match src/test/testfiles/grep_test_2.txt");
+        expectedOutStream.write("match\ntext\n--\nmatch\nmatcht\ntext\n".getBytes(charset));
+        shell.interpret("grep -A 2 match src/test/testfiles/grep_test_3.txt");
+        expectedOutStream.write("match\ntext\ntext\nmatch\ntext\nmatch\ntext\n".getBytes(charset));
+        assertEqualsInnerStreams();
+    }
+
+    @Test
+    public void testGrepMultipleKeys() throws IOException {
+        shell.interpret("grep -iA 2 Match src/test/testfiles/grep_test_3.txt");
+        expectedOutStream.write("match\ntext\ntext\nmatch\ntext\nmatch\ntext\n".getBytes(charset));
+        shell.interpret("grep -wiA 10 m src/test/testfiles/grep_test_3.txt");
+        shell.interpret("grep -wi Hello src/test/testfiles/grep_test_4.txt");
+        expectedOutStream.write("hello world\n".getBytes(charset));
+        shell.interpret("grep -iwA 3 HELLO src/test/testfiles/grep_test_4.txt");
+        expectedOutStream.write("hello world\ntext\nHelloWorld\ntext\n".getBytes(charset));
+        assertEqualsInnerStreams();
+    }
+
+    @Test
+    public void testGrepRegExp() throws IOException {
+        shell.interpret("grep -i \"Hello[^ ]\" src/test/testfiles/grep_test_4.txt");
+        expectedOutStream.write("helloworld\nHelloWorld\n".getBytes(charset));
+        shell.interpret("echo hello | grep \"[0-9]\"");
+        shell.interpret("echo 12 | grep \"[0-9]\"");
+        expectedOutStream.write("12\n".getBytes(charset));
+        shell.interpret("grep world src/test/testfiles/grep_test_1.txt");
+        expectedOutStream.write("world\nhello hello world\nworld\n".getBytes(charset));
+        shell.interpret("grep ^world src/test/testfiles/grep_test_1.txt");
+        expectedOutStream.write("world\nworld\n".getBytes(charset));
+        assertEqualsInnerStreams();
+    }
+
+    @Test
+    public void testGrepErrors() throws IOException {
+        shell.interpret("grep");
+        expectedOutStream.write((ExecutionErrorMessages.GREP_USAGE + "\n").getBytes(charset));
+        shell.interpret("grep -A h pattern file");
+        expectedOutStream.write(
+                (ExecutionErrorMessages.grepContextLenArgFormatError("h")+"\n")
+                        .getBytes(charset));
+        shell.interpret("grep -A 10 pattern nonExistingFile");
+        expectedOutStream.write("nonExistingFile: No such file or directory\n".getBytes(charset));
         assertEqualsInnerStreams();
     }
 }

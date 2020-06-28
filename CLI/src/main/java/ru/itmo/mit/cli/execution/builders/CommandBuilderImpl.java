@@ -54,6 +54,8 @@ public class CommandBuilderImpl implements CommandBuilder {
                 return new WcCommand(commandArgs);
             case PWD:
                 return new PwdCommand(commandArgs);
+            case GREP:
+                return new GrepCommand(commandArgs);
             case EXIT:
                 return new ExitCommand(commandArgs);
             default:

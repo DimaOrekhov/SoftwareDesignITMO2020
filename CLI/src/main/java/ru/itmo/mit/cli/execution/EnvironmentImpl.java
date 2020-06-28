@@ -69,7 +69,8 @@ public class EnvironmentImpl implements Environment {
             // redirect its stdout right into finalStream
             if (i == commands.getCommandList().size() - 1) {
                 try {
-                    command.execute(this, prevIstream, finalStream);
+                    CommandExecutionResult result = command.execute(this, prevIstream, finalStream);
+                    processExecutionResult(result);
                 }
                 catch (IOException e) {
                     throw new IOFailException(e);

@@ -32,8 +32,7 @@ public class WcCommand extends Command {
             List<StreamStats> streamStats = new LinkedList<>();
             for (CommandWord arg: args) {
                 String fileName = arg.getEscapedAndStrippedValue();
-                Path filePath = Paths.get(fileName);
-                Path absFilePath = getAbsolutePath(filePath, environment);
+                Path absFilePath = getAbsolutePath(fileName, environment);
                 try (FileInputStream fileInputStream = new FileInputStream(absFilePath.toString())) {
                     StreamStats result = getStreamStats(fileInputStream,
                             environment.getCharset(), fileName, null);

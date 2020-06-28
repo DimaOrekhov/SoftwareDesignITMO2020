@@ -75,4 +75,25 @@ public abstract class Command {
                 .collect(Collectors.joining(" "));
     }
 
+    /**
+     * Represents command with its arguments as an array of Strings
+     *
+     * Used in OtherCommand and GrepCommand
+     * @param withName true when name of the command is needed to be in the String array
+     * @return
+     */
+    protected String[] commandAsStringArray(boolean withName) {
+        int size = withName ? args.size() + 1: args.size();
+        String[] result = new String[size];
+        int i = 0;
+        if (withName) {
+            result[i] = getCommandName();
+            i++;
+        }
+        for (CommandWord arg: args) {
+            result[i] = arg.getEscapedAndStrippedValue();
+            i++;
+        }
+        return result;
+    }
 }
