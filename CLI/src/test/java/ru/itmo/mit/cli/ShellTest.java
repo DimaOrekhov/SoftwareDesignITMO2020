@@ -84,8 +84,8 @@ public class ShellTest {
 
     @Test
     public void testEcho() throws IOException {
-        //shell.interpret("echo hello    world");
-        //expectedOutStream.write("hello world\n".getBytes(charset));
+        shell.interpret("echo hello    world");
+        expectedOutStream.write("hello world\n".getBytes(charset));
         shell.interpret("echo 'hello   world'");
         expectedOutStream.write("hello   world\n".getBytes(charset));
         assertEqualsInnerStreams();
@@ -233,8 +233,14 @@ public class ShellTest {
         expectedOutStream.write(
                 (ExecutionErrorMessages.grepContextLenArgFormatError("h")+"\n")
                         .getBytes(charset));
+        shell.interpret("grep -A -1 pattern file");
+        expectedOutStream.write(
+                (ExecutionErrorMessages.grepContextLenArgFormatError("-1") + "\n")
+                        .getBytes(charset)
+        );
         shell.interpret("grep -A 10 pattern nonExistingFile");
         expectedOutStream.write("nonExistingFile: No such file or directory\n".getBytes(charset));
         assertEqualsInnerStreams();
     }
+
 }

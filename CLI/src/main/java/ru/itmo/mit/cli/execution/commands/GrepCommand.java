@@ -85,6 +85,10 @@ public class GrepCommand extends Command {
             } catch (NumberFormatException e) {
                 parsingFailedMessage = ExecutionErrorMessages.grepContextLenArgFormatError(stringValue);
             }
+            if (nLinesAfterMatch < 0) {
+                parsingFailedMessage = ExecutionErrorMessages.grepContextLenArgFormatError(stringValue);
+                return;
+            }
         }
         argList = commandLine.getArgList();
         if (argList.size() == 0) {
