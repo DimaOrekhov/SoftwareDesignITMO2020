@@ -39,7 +39,7 @@ public class GrepCommand extends Command {
     private static final Options options;
     private static final CommandLineParser commandLineParser;
 
-    // Static initialization of Options and CommandLineParser classes
+    // Static initialization of Options and CommandLineParser objects
     static {
         options = new Options();
         // Insensitive key:
@@ -62,7 +62,7 @@ public class GrepCommand extends Command {
      * When some error occurs, message is saved into parsingFailedError
      * Non-null value of this variable prevents command from being executed
      *
-     * @param arguments
+     * @param arguments all command's parsed arguments
      */
     public GrepCommand(List<CommandWord> arguments) {
         super(arguments);
@@ -135,11 +135,11 @@ public class GrepCommand extends Command {
     /**
      * Main processing function
      *
-     * @param inputStream
-     * @param outputStream
-     * @param charset
-     * @param stopString
-     * @throws IOException
+     * @param inputStream stream to be processed with grep
+     * @param outputStream command's stdout
+     * @param charset character encoding
+     * @param stopString occurrence of line equal to stop string stops processing
+     * @throws IOException in cases of failing to write/read to/from streams
      */
     private void processStream(InputStream inputStream,
                                OutputStream outputStream,
@@ -198,10 +198,10 @@ public class GrepCommand extends Command {
     /**
      * Checks whether substring is a word, i.e. symbols to its left and right
      * are non-word character (neither letter, digit nor underscore)
-     * @param text
-     * @param start
-     * @param end
-     * @return
+     * @param text text containing word
+     * @param start word starting index
+     * @param end word end index, non-inclusive
+     * @return true when text.substring(start, end) is word, false otherwise
      */
     private static boolean isWord(String text, int start, int end) {
         boolean leftBorder = start == 0 || nonWordChar(text.charAt(start - 1));
@@ -211,8 +211,8 @@ public class GrepCommand extends Command {
 
     /**
      * Checks whether character is a non-word character
-     * @param character
-     * @return
+     * @param character to be tested for being non-word constituent
+     * @return true when character is non-word, false otherwise
      */
     private static boolean nonWordChar(char character) {
         return !(Character.isLetter(character) || Character.isDigit(character) || character == '_');
@@ -220,8 +220,8 @@ public class GrepCommand extends Command {
 
     /**
      * Make String red when printed out to System.out
-     * @param string
-     * @return
+     * @param string string to be colored
+     * @return string colored red
      */
     public static String colorStringRed(String string) {
         return ANSI_RED + string + ANSI_RESET;
