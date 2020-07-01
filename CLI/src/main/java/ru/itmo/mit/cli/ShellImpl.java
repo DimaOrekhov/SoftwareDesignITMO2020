@@ -49,8 +49,9 @@ public class ShellImpl implements Shell {
 
     /**
      * In case of error messages prints them to environment
-     * @param result
-     * @return
+     * @param result Result of a parsing process, wrapped in a ParsingResult class,
+     *               indicating, whether parsing has been successful
+     * @return True in case of successful parsing, false otherwise
      */
     private boolean parsingFailed(ParsingResult result) {
         if (result instanceof SuccessfulParsing) {
