@@ -80,7 +80,7 @@ public abstract class Command {
      *
      * Used in OtherCommand and GrepCommand
      * @param withName true when name of the command is needed to be in the String array
-     * @return
+     * @return String array representation of a command, each element containing some command word
      */
     protected String[] commandAsStringArray(boolean withName) {
         int size = withName ? args.size() + 1: args.size();

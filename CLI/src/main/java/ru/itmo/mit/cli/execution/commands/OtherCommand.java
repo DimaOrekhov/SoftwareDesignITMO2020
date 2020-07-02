@@ -25,8 +25,7 @@ public class OtherCommand extends Command {
      * @param environment Environment in which command is to be executed
      * @param inStream command's stdin
      * @param outStream command's stdout
-     * @return
-     * @throws IOException
+     * @return ComanExecutionResult, indicating, whether execution has been successful
      */
     @Override
     public CommandExecutionResult execute(Environment environment,

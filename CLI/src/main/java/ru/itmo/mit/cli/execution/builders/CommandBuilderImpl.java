@@ -29,7 +29,6 @@ public class CommandBuilderImpl implements CommandBuilder {
 
     /**
      * @param arg argument to be added to list of arguments
-     * @return
      */
     @Override
     public CommandBuilder addArgument(CommandWord arg) {
@@ -39,7 +38,6 @@ public class CommandBuilderImpl implements CommandBuilder {
 
     /**
      * Chooses appropriate constructor based on a CommandName
-     * @return
      */
     @Override
     public Command build() {

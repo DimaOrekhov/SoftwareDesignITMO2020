@@ -58,7 +58,6 @@ public class EnvironmentImpl implements Environment {
 
     /**
      * Executes chain of piped commands
-     * @param commands
      */
     @Override
     public void executeCommands(PipedCommands commands) {
@@ -101,7 +100,6 @@ public class EnvironmentImpl implements Environment {
 
     /**
      * Prints into environment's final stream adding trailing new line character
-     * @param text
      */
     @Override
     public void println(String text) {

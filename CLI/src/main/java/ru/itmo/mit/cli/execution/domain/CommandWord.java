@@ -28,8 +28,8 @@ public class CommandWord {
      *
      * Deletes backslash characters representing character escaping
      *
-     * @param rawValue
-     * @return
+     * @param rawValue raw word with possible quotation marks and and escape backslashes
+     * @return String with stripped quotation marks and deleted non-escaped backslashes
      */
     private static String escapeAndStrip(String rawValue) {
         if (rawValue.equals("")) {
@@ -94,8 +94,8 @@ public class CommandWord {
 
     /**
      * Equals compares escaped and stripped value for the sake of testing
-     * @param obj
-     * @return
+     * @param obj Object to compare for equality
+     * @return True when obj equals to CommandWord, false otherwise
      */
     @Override
     public boolean equals(Object obj) {
@@ -107,7 +107,7 @@ public class CommandWord {
 
     /**
      * appropriate hash code method
-     * @return
+     * @return hash of CommandWord object
      */
     @Override
     public int hashCode() {
