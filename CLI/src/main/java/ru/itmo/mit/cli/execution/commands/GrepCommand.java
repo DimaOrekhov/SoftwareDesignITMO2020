@@ -139,6 +139,7 @@ public class GrepCommand extends Command {
      * @param outputStream command's stdout
      * @param charset character encoding
      * @param stopString occurrence of line equal to stop string stops processing
+     * @throws IOException in cases of failing to write/read to/from streams
      */
     private void processStream(InputStream inputStream,
                                OutputStream outputStream,
