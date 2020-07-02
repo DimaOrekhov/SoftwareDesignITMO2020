@@ -23,6 +23,6 @@ jobs:
     - name: Go to project directory
       run: cd CLI
     - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      run: pwd
     - name: Build with Gradle
       run: ./gradlew test
