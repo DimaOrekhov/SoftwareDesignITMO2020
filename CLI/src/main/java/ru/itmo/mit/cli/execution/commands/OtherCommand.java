@@ -25,8 +25,7 @@ public class OtherCommand extends Command {
      * @param environment Environment in which command is to be executed
      * @param inStream command's stdin
      * @param outStream command's stdout
-     * @return
-     * @throws IOException
+     * @return ComanExecutionResult, indicating, whether execution has been successful
      */
     @Override
     public CommandExecutionResult execute(Environment environment,
@@ -34,7 +33,7 @@ public class OtherCommand extends Command {
                                           OutputStream outStream) throws IOException {
         // Setting up a process:
         ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.command(commandAsStringArray());
+        processBuilder.command(commandAsStringArray(true));
         processBuilder
                 .environment()
                 .putAll(environment.getNamespace());
@@ -56,17 +55,6 @@ public class OtherCommand extends Command {
     @Override
     public String getCommandName() {
         return commandName.getEscapedAndStrippedValue();
-    }
-
-    private String[] commandAsStringArray() {
-        String[] result = new String[args.size() + 1];
-        result[0] = commandName.getRawValue();
-        int i = 1;
-        for (CommandWord arg: args) {
-            result[i] = arg.getEscapedAndStrippedValue();
-            i++;
-        }
-        return result;
     }
 
     @Override

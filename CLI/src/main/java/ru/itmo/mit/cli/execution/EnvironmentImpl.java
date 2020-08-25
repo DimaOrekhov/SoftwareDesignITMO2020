@@ -58,7 +58,6 @@ public class EnvironmentImpl implements Environment {
 
     /**
      * Executes chain of piped commands
-     * @param commands
      */
     @Override
     public void executeCommands(PipedCommands commands) {
@@ -69,7 +68,8 @@ public class EnvironmentImpl implements Environment {
             // redirect its stdout right into finalStream
             if (i == commands.getCommandList().size() - 1) {
                 try {
-                    command.execute(this, prevIstream, finalStream);
+                    CommandExecutionResult result = command.execute(this, prevIstream, finalStream);
+                    processExecutionResult(result);
                 }
                 catch (IOException e) {
                     throw new IOFailException(e);
@@ -100,7 +100,6 @@ public class EnvironmentImpl implements Environment {
 
     /**
      * Prints into environment's final stream adding trailing new line character
-     * @param text
      */
     @Override
     public void println(String text) {

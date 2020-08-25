@@ -29,7 +29,6 @@ public class CommandBuilderImpl implements CommandBuilder {
 
     /**
      * @param arg argument to be added to list of arguments
-     * @return
      */
     @Override
     public CommandBuilder addArgument(CommandWord arg) {
@@ -39,7 +38,6 @@ public class CommandBuilderImpl implements CommandBuilder {
 
     /**
      * Chooses appropriate constructor based on a CommandName
-     * @return
      */
     @Override
     public Command build() {
@@ -54,6 +52,8 @@ public class CommandBuilderImpl implements CommandBuilder {
                 return new WcCommand(commandArgs);
             case PWD:
                 return new PwdCommand(commandArgs);
+            case GREP:
+                return new GrepCommand(commandArgs);
             case EXIT:
                 return new ExitCommand(commandArgs);
             default:

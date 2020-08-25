@@ -1,6 +1,5 @@
 package ru.itmo.mit.cli;
 
-import ru.itmo.mit.cli.execution.domain.PipedCommands;
 import ru.itmo.mit.cli.parsing.domain.ParsingResult;
 import ru.itmo.mit.cli.parsing.domain.SuccessfulParsing;
 

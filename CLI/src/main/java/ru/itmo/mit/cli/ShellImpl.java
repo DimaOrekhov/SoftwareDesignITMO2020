@@ -31,7 +31,7 @@ public class ShellImpl implements Shell {
      * 3. Executing commands inside an instance of Environment
      * If error occurs on stages 1 or 2, execution interrupts and error messages is
      * sent to environment
-     * @param inputString
+     * @param inputString Command string to be interpreted
      */
     public void interpret(String inputString) {
         ParsingResult<String> substitutorResult = substitutor.substitute(inputString);
@@ -49,8 +49,9 @@ public class ShellImpl implements Shell {
 
     /**
      * In case of error messages prints them to environment
-     * @param result
-     * @return
+     * @param result Result of a parsing process, wrapped in a ParsingResult class,
+     *               indicating, whether parsing has been successful
+     * @return True in case of successful parsing, false otherwise
      */
     private boolean parsingFailed(ParsingResult result) {
         if (result instanceof SuccessfulParsing) {

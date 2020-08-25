@@ -32,8 +32,7 @@ public class WcCommand extends Command {
             List<StreamStats> streamStats = new LinkedList<>();
             for (CommandWord arg: args) {
                 String fileName = arg.getEscapedAndStrippedValue();
-                Path filePath = Paths.get(fileName);
-                Path absFilePath = getAbsolutePath(filePath, environment);
+                Path absFilePath = getAbsolutePath(fileName, environment);
                 try (FileInputStream fileInputStream = new FileInputStream(absFilePath.toString())) {
                     StreamStats result = getStreamStats(fileInputStream,
                             environment.getCharset(), fileName, null);
@@ -68,12 +67,12 @@ public class WcCommand extends Command {
 
     /**
      * Computes required statistics for a given stream
-     * @param stream
+     * @param stream stream to be processed
      * @param charset character encoding to be used
      * @param streamName name of a stream
      * @param stopString string indicating end of stream
-     * @return
-     * @throws IOException
+     * @return Instance of StreamStats class, containing count statistics
+     * of a processed stream
      */
     private StreamStats getStreamStats(InputStream stream,
                                   Charset charset,
@@ -147,8 +146,8 @@ public class WcCommand extends Command {
          *
          * Used in sumUp method below
          *
-         * @param other
-         * @return
+         * @param other StreamStats object to be added
+         * @return StreamStats sum object
          */
         private StreamStats add(StreamStats other) {
             return new StreamStats(lineCount + other.lineCount,
@@ -159,8 +158,8 @@ public class WcCommand extends Command {
 
         /**
          * Used to get a summary of multiple StreamStats objects
-         * @param streamStats
-         * @return
+         * @param streamStats List of StreamStats objects
+         * @return StreamStats instance with sums of statistics of streamStats
          */
         public static StreamStats sumUp(List<StreamStats> streamStats) {
             return streamStats.stream().reduce(new StreamStats("total"),

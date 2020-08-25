@@ -9,6 +9,7 @@ public enum CommandType {
     ECHO,
     WC,
     PWD,
+    GREP,
     EXIT,
     OTHER;
 
@@ -30,6 +31,8 @@ public enum CommandType {
                 return PWD;
             case "exit":
                 return EXIT;
+            case "grep":
+                return GREP;
         }
         return OTHER;
     }

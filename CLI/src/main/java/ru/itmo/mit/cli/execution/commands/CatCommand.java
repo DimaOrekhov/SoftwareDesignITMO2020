@@ -32,8 +32,7 @@ public class CatCommand extends Command {
             LinkedList<String> filesNotFound = new LinkedList<>();
             for (CommandWord fname : args) {
                 String fileName = fname.getEscapedAndStrippedValue();
-                Path filePath = Paths.get(fileName);
-                Path absFilePath = getAbsolutePath(filePath, environment);
+                Path absFilePath = getAbsolutePath(fileName, environment);
                 try (FileInputStream fileInputStream = new FileInputStream(absFilePath.toString())) {
                     fileInputStream.transferTo(outStream);
                 } catch (FileNotFoundException e) {
